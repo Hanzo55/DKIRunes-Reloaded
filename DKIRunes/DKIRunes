@@ -49,15 +49,13 @@ DKIRunes_Saved = {
 	parent = "UIParent";
 	point = "TOPLEFT";
 	parentPoint = "TOPLEFT";
-	x = -73;
+	x = 54;
 	y = 25;
 	scale = 0.8;
 	rotate = 0;
 	hero = false;
 	heroSlide = 150;
 	heroOrigin = 1;
-	rp = true;
-	rpCounter = true;
 };
 
 function DKIRunes_OnLoad(self)
@@ -114,10 +112,6 @@ function DKIRunes_OnEvent (self, event, ...)
 
 		EbonBlade_Power:SetTexture(0.0,0.82,1.0,0.75)
 
-		DKIRunicPower:SetFontObject(CombatLogFont)
-		DKIRunicPower:SetTextColor(0.0,1.0,1.0,1.0)
-		DKIRunesRunicPower:Show();
-
 	elseif ( event == "VARIABLES_LOADED" ) then
 		DKIRunes_Rotate(false);
 		DKIRunes_UpdateUI();
@@ -156,23 +150,12 @@ end
 
 function DKIRunes_RPUpdate()
 	local power = UnitMana("player");
-	EbonBlade_Power:Hide();
-	DKIRunicPower:Hide();
-
-	if (power > 0) then
-		if(DKIRunes_Saved.rp) then
-			EbonBlade_Power:Show();
-			local powerValue = 181 * power / UnitManaMax("player") ;
-			if (DKIRunes_Saved.rotate % 2 == 1) then
-				EbonBlade_Power:SetHeight(powerValue);
-			else
-				EbonBlade_Power:SetWidth(powerValue);
-			end
-		end
-		if(DKIRunes_Saved.rpCounter) then
-			DKIRunicPower:SetText(power);
-			DKIRunicPower:Show();
-		end
+	if (power == 0) then
+		EbonBlade_Power:Hide();
+	else
+		local powerValue = UnitManaMax("player") /  power;
+		EbonBlade_Power:SetTexCoord(0,powerValue,0,1);
+		EbonBlade_Power:Show();
 	end
 end
 
@@ -362,25 +345,9 @@ function DKIRunes_populateBlizzardOptions()
 	rotate:GetFontString():SetPoint("TOP", rotate, "TOP", 0, -6)
 	rotate:SetPoint('TOPLEFT', slider, 'BOTTOMLEFT', 0, -20)
 
-	local rpTitle = frame:CreateFontString("rpTitleString","ARTWORK","GameTooltipHeaderText");
-	rpTitle:SetText("Runic Power")
-	rpTitle:SetPoint('TOPLEFT', rotate, 'BOTTOMLEFT', -20, -10)
-
-	local rpEnable = CreateFrame("CheckButton", "RPEnable", frame, "OptionsCheckButtonTemplate");
-	getglobal(rpEnable:GetName().."Text"):SetText("Enabled");
-	rpEnable:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.rp) end)
-	rpEnable:SetScript('OnClick', function(self) DKIRunes_Saved.rp = self:GetChecked() end)
-	rpEnable:SetPoint('TOPLEFT', rpTitle, 'BOTTOMLEFT', 20, -5)
-
-	local rpCounterEnable = CreateFrame("CheckButton", "RPCounter", frame, "OptionsCheckButtonTemplate");
-	getglobal(rpCounterEnable:GetName().."Text"):SetText("Numeric Display");
-	rpCounterEnable:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.rpCounter) end)
-	rpCounterEnable:SetScript('OnClick', function(self) DKIRunes_Saved.rpCounter = self:GetChecked() end)
-	rpCounterEnable:SetPoint('LEFT', rpEnable, 'RIGHT', 100, 0)
-
 	local heroTitle = frame:CreateFontString("heroTitleString","ARTWORK","GameTooltipHeaderText");
 	heroTitle:SetText("Rune Slide")
-	heroTitle:SetPoint('TOPLEFT', rpEnable, 'BOTTOMLEFT', -20, -10)
+	heroTitle:SetPoint('TOPLEFT', rotate, 'BOTTOMLEFT', -20, -10)
 
 	local heroEnable = CreateFrame("CheckButton", "HeroEnable", frame, "OptionsCheckButtonTemplate");
 	getglobal(heroEnable:GetName().."Text"):SetText("Enabled");
@@ -435,31 +402,21 @@ function DKIRunes_Rotate(spin)
 		DKIRunes_Saved.rotate = 0;
 	end
 
-	EbonBlade_Power:ClearAllPoints()
-
 	if (DKIRunes_Saved.rotate == 1) then
 		EbonBlade_Base:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 		EbonBlade_Power:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
-		EbonBlade_Power:SetPoint('TOP', DKIRunesFrame, 'CENTER', 0, 86)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, 101)
 		EbonBlade_Top:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 	elseif (DKIRunes_Saved.rotate == 2) then
 		EbonBlade_Base:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 		EbonBlade_Power:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
-		EbonBlade_Power:SetPoint('RIGHT', DKIRunesFrame, 'CENTER', 86, 0)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 101, 0)
 		EbonBlade_Top:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 	elseif (DKIRunes_Saved.rotate == 3) then
 		EbonBlade_Base:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 		EbonBlade_Power:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
-		EbonBlade_Power:SetPoint('BOTTOM', DKIRunesFrame, 'CENTER', 0, -86)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, -101)
 		EbonBlade_Top:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 	else
 		EbonBlade_Base:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 		EbonBlade_Power:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
-		EbonBlade_Power:SetPoint('LEFT', DKIRunesFrame, 'CENTER', -86, 0)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -99, 0)
 		EbonBlade_Top:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 	end
 
@@ -467,7 +424,7 @@ function DKIRunes_Rotate(spin)
 		EbonBlade_Base:SetWidth(64);
 		EbonBlade_Base:SetHeight(256);
 		EbonBlade_Power:SetWidth(34);
-		EbonBlade_Power:SetHeight(181);
+		EbonBlade_Power:SetHeight(179);
 		EbonBlade_Top:SetWidth(256);
 		EbonBlade_Top:SetHeight(512);
 		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[1])
@@ -479,7 +436,7 @@ function DKIRunes_Rotate(spin)
 	else
 		EbonBlade_Base:SetWidth(256);
 		EbonBlade_Base:SetHeight(64);
-		EbonBlade_Power:SetWidth(181);
+		EbonBlade_Power:SetWidth(179);
 		EbonBlade_Power:SetHeight(34);
 		EbonBlade_Top:SetWidth(512);
 		EbonBlade_Top:SetHeight(256);
@@ -491,7 +448,6 @@ function DKIRunes_Rotate(spin)
 		getglobal("Rune4"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[4], 0)
 	end
 
-	DKIRunes_RPUpdate();
 	DKIRunes_UpdateArt();
 	DKIRunes_UpdateUI();
 end
@@ -508,7 +464,7 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.parent = "UIParent";
 	DKIRunes_Saved.point = "TOPLEFT";
 	DKIRunes_Saved.parentPoint = "TOPLEFT";
-	DKIRunes_Saved.x = -73;
+	DKIRunes_Saved.x = 54;
 	DKIRunes_Saved.y = 25;
 	DKIRunes_Saved.scale = 0.8;
 	DKIRunes_Saved.rotate = 0;
@@ -516,9 +472,7 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.hero = false;
 	DKIRunes_Saved.heroSlide = 150;
 	DKIRunes_Saved.heroOrigin = 1;
-	DKIRunes_Saved.rp = true;
-	DKIRunes_Saved.rpCounter = true;
-
+	
 	DKIRunesFrame:SetMovable(false)
 	DKIRunesFrame:EnableMouse(false)
 
