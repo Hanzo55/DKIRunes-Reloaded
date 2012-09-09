@@ -123,6 +123,8 @@ diseaseBarTexture[2][1] = diseaseBar[2]:CreateTexture("DKIDiseasesBar21", "BORDE
 local pestTime = nil
 local diseaseDuration = 15
 local pest = {}
+local ap = {}
+local IncludeEW = nil
 local demo0Time = nil
 local demo1Time = nil
 local inCombat = 0
@@ -406,19 +408,23 @@ end
 --end
 
 function DKIDiseases_Talents_Check()
-	_, _, _, _, CF_currentRank, _, _, _ = GetTalentInfo(3, 24);
-	_, _, _, _, EP_currentRank, _, _, _ = GetTalentInfo(3, 27);
+	_, _, _, _, CF_currentRank, _, _, _ = GetTalentInfo(3, 25);
+	_, _, _, _, EP_currentRank, _, _, _ = GetTalentInfo(3, 28);
+	_, _, _, _, EW_currentRank, _, _, _ = GetTalentInfo(2, 12);
 	if(EP_currentRank > 0) then
 		InitDisease(2, DISEASETYPE_EBONPLAGUE);
 		bar3 = DISEASETYPE_EBONPLAGUE;
 	elseif(CF_currentRank > 0) then
 		InitDisease(2, DISEASETYPE_CRYPTFEVER);
 		bar3 = DISEASETYPE_CRYPTFEVER;
+	elseif(EW_currentRank > 1) then
+		IncludeEW = true
 	else
 		diseaseIcon[2][0]:Hide();
 		diseaseIcon[2][1]:Hide();
 		diseaseBar[2]:Hide();
 		bar3 = 0;
+		IncludeEW = nil
 	end
 end
 
@@ -428,12 +434,31 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
  		DKIDiseases_UpdateIconsAndBars();
 		pestTime = nil;
 	end
+	if(player == "player" and spell == GetSpellInfo(45462)) then
+		local apBase, posBuff, negBuff = UnitAttackPower("player");
+		ap[0] = apBase + posBuff + negBuff;
+	end
+	if((player == "player" and spell == GetSpellInfo(45477)) or
+	(player == "player" and spell == GetSpellInfo(113) and IncludeEW)) then
+		local apBase, posBuff, negBuff = UnitAttackPower("player");
+		ap[1] = apBase + posBuff + negBuff;
+	end
+	if(player == "player" and spell == GetSpellInfo(49203)) then
+		inCombat = 1;
+		pestTime = GetTime();
+		local apBase, posBuff, negBuff = UnitAttackPower("player");
+		ap[1] = apBase + posBuff + negBuff;
+		DKIDiseases_UpdateIconAndBar(59921, 1, true);
+		pestTime = nil;
+	end
 	if(player == "player" and spell == GetSpellInfo(51411)) then
 		for i = 1, 6 do
 			local enabled, _, glyphSpellID, _ = GetGlyphSocketInfo(i);
 			if ( enabled and glyphSpellID == 63335) then
 				inCombat = 1;
 				pestTime = GetTime();
+				local apBase, posBuff, negBuff = UnitAttackPower("player");
+				ap[1] = apBase + posBuff + negBuff;
 				DKIDiseases_UpdateIconAndBar(59921, 1, true);
 				pestTime = nil;
 			end
@@ -446,11 +471,10 @@ function GetSpellID(spell)
     local name
 
     for i = 1, 100000 do
-
         name = GetSpellInfo(i)
 
         if name == spell then
-
+ChatFrame1:AddMessage("id: "..i);
             return i
 
         end
@@ -466,7 +490,7 @@ function DKIDiseases_OnUpdate(self, update)
 		end
 	end
 
- 	DKIDiseases_UpdateIconsAndBars(); 
+	DKIDiseases_UpdateIconsAndBars(); 
  	DKIDiseases_UpdateDemoIconsAndBars(nil, nil); 
 end
 
@@ -539,6 +563,7 @@ end
 function DKIDiseases_UpdateIconAndBar(debuff, id, force)
  	local i = GetSpellInfo(debuff);
    	local _, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
+	local apBase, posBuff, negBuff = UnitAttackPower("player");
 
 	if(duration and diseaseDuration ~= duration) then
 		diseaseDuration = duration;
@@ -551,8 +576,21 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, force)
 		if(pestTime) then
 			pest[id] = pestTime + diseaseDuration;
 		end
+
+		if(ap[id]) then
+			local currentAp = apBase + posBuff + negBuff
+			local delta = (ap[id] / currentAp) ^ 2
+			if (currentAp <= ap[id]) then
+				delta = 1
+			end
+			if (delta < 0.1) then
+				delta = 0.1
+			end
+			DKIDiseases_Animate(id, delta, 3)
+		end
 	else
 		DKIDiseases_Animate(id, 0, 1)
+		DKIDiseases_Animate(id, 0, 3)
 	end
 
 	if(force) then
@@ -566,7 +604,7 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, force)
 		if(delta <= 0) then
 			pest[id] = nil
 		end
-	end
+	end	
 
 end
 

@@ -343,6 +343,13 @@ function RingTrack_Initialise()
 	info.owner = this:GetParent(); 
 	info.checked = (DKIDiseases_Saved.ringTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "DoT Attack Power"; 
+	info.value = 3; 
+	info.func = function() RingTrack_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIDiseases_Saved.ringTrack == 3); 
+	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RingTrack, DKIDiseases_Saved.ringTrack)
 end
@@ -412,6 +419,13 @@ function IconTrack_Initialise()
 	info.func = function() IconTrack_OnClick() end; 
 	info.owner = this:GetParent(); 
 	info.checked = (DKIDiseases_Saved.iconTrack == 2); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "DoT Attack Power"; 
+	info.value = 3; 
+	info.func = function() IconTrack_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIDiseases_Saved.iconTrack == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(IconTrack, DKIDiseases_Saved.iconTrack)
@@ -483,6 +497,13 @@ function BladeTrack_Initialise()
 	info.owner = this:GetParent(); 
 	info.checked = (DKIDiseases_Saved.bladeTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "DoT Attack Power"; 
+	info.value = 3; 
+	info.func = function() BladeTrack_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIDiseases_Saved.bladeTrack == 3); 
+	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(BladeTrack, DKIDiseases_Saved.bladeTrack)
 end
@@ -522,6 +543,13 @@ function BarTrack_Initialise()
 	info.func = function() BarTrack_OnClick() end; 
 	info.owner = this:GetParent(); 
 	info.checked = (DKIDiseases_Saved.barTrack == 2); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "DoT Attack Power"; 
+	info.value = 3; 
+	info.func = function() BarTrack_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIDiseases_Saved.barTrack == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(BarTrack, DKIDiseases_Saved.barTrack)
