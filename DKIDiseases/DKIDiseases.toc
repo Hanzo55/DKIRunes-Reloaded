@@ -1,4 +1,4 @@
-## Interface: 40100
+## Interface: 40200
 ## Title: DKIDiseases
 ## Notes: Disease display based on the contest and community feedback of DeathKnight.info
 ##
