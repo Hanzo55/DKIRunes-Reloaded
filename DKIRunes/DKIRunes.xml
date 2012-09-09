@@ -99,8 +99,20 @@
             </Texture>
 		</Layer>
      	<Layer level="BORDER">
-           <Texture name="EbonBlade_Power">
-				<Size x="181" y="34"/>
+           <Texture name="EbonBlade_Bar_0">
+				<Size x="181" y="18"/>
+        		<Anchors>
+                     <Anchor point="CENTER" relativePoint="CENTER">
+						<Offset>
+						  <AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+                </Anchors>
+            </Texture>
+		</Layer>
+     	<Layer level="BORDER">
+           <Texture name="EbonBlade_Bar_1">
+				<Size x="181" y="18"/>
         		<Anchors>
                      <Anchor point="CENTER" relativePoint="CENTER">
 						<Offset>

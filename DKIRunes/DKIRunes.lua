@@ -58,11 +58,69 @@ DKIRunes_Saved = {
 	hero = false;
 	heroSlide = 150;
 	heroOrigin = 1;
-	rp = true;
+	bar0 = 1;
+	bar1 = 1;
 	rpCounter = true;
 	counterScale = 1;
 	fade = false;
 };
+
+function LoadNewSavedVariables()
+	if(DKIRunes_Saved.artStyle == nil) then
+		DKIRunes_Saved.artStyle = 1;
+	end
+--	if(DKIRunes_Saved.animate == nil) then
+--		DKIRunes_Saved.animate = true;
+--	end
+--	if(DKIRunes_Saved.cooldown == nil) then
+--		DKIRunes_Saved.cooldown = false;
+--	end
+	if(DKIRunes_Saved.parent == nil) then
+		DKIRunes_Saved.parent = "UIParent";
+	end
+	if(DKIRunes_Saved.point == nil) then
+		DKIRunes_Saved.point = "TOPLEFT";
+	end
+	if(DKIRunes_Saved.parentPoint == nil) then
+		DKIRunes_Saved.parentPoint = "TOPLEFT";
+	end
+	if(DKIRunes_Saved.x == nil) then
+		DKIRunes_Saved.x = -73;
+	end
+	if(DKIRunes_Saved.y == nil) then
+		DKIRunes_Saved.y = 25;
+	end
+	if(DKIRunes_Saved.scale == nil) then
+		DKIRunes_Saved.scale = 0.8;
+	end
+	if(DKIRunes_Saved.rotate == nil) then
+		DKIRunes_Saved.rotate = 0;
+	end
+--	if(DKIRunes_Saved.hero == nil) then
+--		DKIRunes_Saved.hero = false;
+--	end
+	if(DKIRunes_Saved.heroSlide == nil) then
+		DKIRunes_Saved.heroSlide = 150;
+	end
+	if(DKIRunes_Saved.heroOrigin == nil) then
+		DKIRunes_Saved.heroOrigin = 1;
+	end
+	if(DKIRunes_Saved.bar0 == nil) then
+		DKIRunes_Saved.bar0 = 1;
+	end
+	if(DKIRunes_Saved.bar1 == nil) then
+		DKIRunes_Saved.bar1 = 1;
+	end
+--	if(DKIRunes_Saved.rpCounter == nil) then
+--		DKIRunes_Saved.rpCounter = true;
+--	end
+	if(DKIRunes_Saved.counterScale == nil) then
+		DKIRunes_Saved.counterScale = 1;
+	end
+--	if(DKIRunes_Saved.fade == nil) then
+--		DKIRunes_Saved.fade = false;
+--	end
+end
 
 function DKIRunes_OnLoad(self)
 	
@@ -86,7 +144,6 @@ function DKIRunes_OnLoad(self)
 	self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterEvent("PLAYER_ENTER_COMBAT");
 	self:RegisterEvent("PLAYER_LEAVE_COMBAT");
-	self:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 	self:SetScript("OnEvent", DKIRunes_OnEvent);
 	
@@ -121,14 +178,16 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunesVerticalBackdrop:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
 		DKIRunesVerticalBackdrop:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r,TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
 
-		EbonBlade_Power:SetTexture(0.0,0.82,1.0,0.75)
-
 		DKIRunicPower:SetFontObject(CombatLogFont)
 		DKIRunicPower:SetTextColor(0.0,1.0,1.0,1.0)
 		DKIRunesRunicPower:Show();
 
 	elseif ( event == "VARIABLES_LOADED" ) then
+		LoadNewSavedVariables();
 		DKIRunes_Rotate(false);
+		RunicBar0_Set(DKIRunes_Saved.bar0)
+		RunicBar1_Set(DKIRunes_Saved.bar1)
+		DKIRunes_BarUpdate();
 		DKIRunes_UpdateUI();
 		DKIRunes_populateBlizzardOptions();
 		DKIRunesFrame:SetAlpha(0.3);
@@ -172,28 +231,62 @@ function DKIRunes_UpdateArt()
 	end
 end
 
-function DKIRunes_RPUpdate()
-	local power = UnitMana("player");
-	EbonBlade_Power:Hide();
+function DKIRunes_BarUpdate()
 	DKIRunicPower:Hide();
 	DKIRunesFrame:SetAlpha(1.0);
+	EbonBlade_Bar_0:Hide();
+	EbonBlade_Bar_1:Hide();
+	local runicPower = 181 * UnitMana("player") / UnitManaMax("player") ;
+	local healthPoints = 181 * UnitHealth("player") / UnitHealthMax("player") ;
+	local deathPoints = 181 * ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
 
-	if (power > 0) then
-		if(DKIRunes_Saved.rp) then
-			EbonBlade_Power:Show();
-			local powerValue = 181 * power / UnitManaMax("player") ;
-			if (DKIRunes_Saved.rotate % 2 == 1) then
-				EbonBlade_Power:SetHeight(powerValue);
-			else
-				EbonBlade_Power:SetWidth(powerValue);
-			end
+	if (DKIRunes_Saved.bar0 > 0) then
+		local power0Value;
+		if(DKIRunes_Saved.bar0 == 2) then
+			power0Value = healthPoints;
+		elseif(DKIRunes_Saved.bar0 == 3) then
+			power0Value = deathPoints;
+		else
+			power0Value = runicPower;
 		end
-		if(DKIRunes_Saved.rpCounter) then
-			DKIRunicPower:SetText(power);
-			DKIRunicPower:Show();
+		if (DKIRunes_Saved.rotate % 2 == 1) then
+			EbonBlade_Bar_0:SetHeight(power0Value);
+		else
+			EbonBlade_Bar_0:SetWidth(power0Value);
 		end
-	elseif (inCombat == 0 and DKIRunes_Saved.fade) then
+		if(power0Value > 0) then
+			EbonBlade_Bar_0:Show();
+		end
+	end
+
+	if (DKIRunes_Saved.bar1 > 0) then
+		local power1Value;
+		if(DKIRunes_Saved.bar1 == 2) then
+			power1Value = healthPoints;
+		elseif(DKIRunes_Saved.bar1 == 3) then
+			power1Value = deathPoints;
+		else
+			power1Value = runicPower;
+		end
+		if (DKIRunes_Saved.rotate % 2 == 1) then
+			EbonBlade_Bar_1:SetHeight(power1Value);
+		else
+			EbonBlade_Bar_1:SetWidth(power1Value);
+		end
+		if(power1Value > 0) then
+			EbonBlade_Bar_1:Show();
+		end
+	end
+
+	if(DKIRunes_Saved.rpCounter and UnitMana("player") > 0) then
+		DKIRunicPower:SetText(UnitMana("player"));
+		DKIRunicPower:Show();
+	end
+
+	if(DKIRunes_Saved.fade and UnitMana("player") == 0 and inCombat == 0) then
 		DKIRunesFrame:SetAlpha(0.3);
+		EbonBlade_Bar_0:Hide();
+		EbonBlade_Bar_1:Hide();
 	end
 end
 
@@ -222,7 +315,7 @@ function DKIRunes_OnUpdate(self, update)
 		end
 	end
 
-	DKIRunes_RPUpdate()
+	DKIRunes_BarUpdate()
 
 end
 
@@ -326,7 +419,15 @@ function DKIRunes_populateBlizzardOptions()
 	getglobal(lock:GetName().."Text"):SetText("Unlock Frame");
 	lock:SetScript('OnShow', function(self) self:SetChecked(DKIRunesFrame:IsMouseEnabled()) end)
 	lock:SetScript('OnClick', function(self) DKIRunes_Lock(self:GetChecked()) end)
-	lock:SetPoint('LEFT', reset, 'RIGHT', 20, -2)
+	lock:SetPoint('LEFT', reset, 'RIGHT', 15, -2)
+
+	local rotate = CreateFrame("Button", "RotateButton", frame, "OptionsButtonTemplate");
+	rotate:SetText("Rotate")
+	rotate:SetScript('OnClick', function() DKIRunes_Rotate(true) end)
+	rotate:SetWidth(100);
+	rotate:SetHeight(24);
+	rotate:GetFontString():SetPoint("TOP", rotate, "TOP", 0, -6)
+	rotate:SetPoint('LEFT', lock, 'RIGHT', 105, 2)
 
 --[[	local wtf = CreateFrame("Button", "wtf", frame, "OptionsButtonTemplate");
 	wtf:SetText("WTF?")
@@ -347,14 +448,14 @@ function DKIRunes_populateBlizzardOptions()
 	animate:SetPoint('TOPLEFT', animateTitle, 'BOTTOMLEFT', 20, -5)
 
 	local cooldown = CreateFrame("CheckButton", "CooldownCheck", frame, "OptionsCheckButtonTemplate");
-	getglobal(cooldown:GetName().."Text"):SetText("Blizzard Cooldowns (OmniCC Support)");
+	getglobal(cooldown:GetName().."Text"):SetText("OmniCC Support");
 	cooldown:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.cooldown) end)
 	cooldown:SetScript('OnClick', function(self) DKIRunes_Saved.cooldown = self:GetChecked() end)
-	cooldown:SetPoint('TOPLEFT', animate, 'BOTTOMLEFT', 0, 0)
+	cooldown:SetPoint('LEFT', animate, 'RIGHT', 120, 0)
 
 	local graphicsTitle = frame:CreateFontString("graphicsTitleString","ARTWORK","GameTooltipHeaderText");
 	graphicsTitle:SetText("Rune Frame Graphics")
-	graphicsTitle:SetPoint('TOPLEFT', cooldown, 'BOTTOMLEFT', -20, -10)
+	graphicsTitle:SetPoint('TOPLEFT', animate, 'BOTTOMLEFT', -20, -10)
 
 	graphics = CreateFrame("Frame", "RuneFrameGraphics", frame, "UIDropDownMenuTemplate"); 
 	graphics:SetPoint('TOPLEFT', graphicsTitle, 'BOTTOMLEFT', 5, -5)
@@ -364,7 +465,7 @@ function DKIRunes_populateBlizzardOptions()
 	getglobal(fade:GetName().."Text"):SetText("Fade out of Combat");
 	fade:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.fade) end)
 	fade:SetScript('OnClick', function(self) DKIRunes_Saved.fade = self:GetChecked() end)
-	fade:SetPoint('LEFT', graphics, 'RIGHT', 122, 0)
+	fade:SetPoint('LEFT', graphics, 'RIGHT', 120, 0)
 
 	local slider = CreateFrame("Slider", "ScaleSlider", frame, "OptionsSliderTemplate")
 	slider:SetMinMaxValues(0.2, 2.0)
@@ -380,29 +481,38 @@ function DKIRunes_populateBlizzardOptions()
 	slideTitle:SetText("Frame Scale")
 	slideTitle:SetPoint('LEFT', slider, 'RIGHT', 10, 0)
 
-	local rotate = CreateFrame("Button", "RotateButton", frame, "OptionsButtonTemplate");
-	rotate:SetText("Rotate")
-	rotate:SetScript('OnClick', function() DKIRunes_Rotate(true) end)
-	rotate:SetWidth(130);
-	rotate:SetHeight(24);
-	rotate:GetFontString():SetPoint("TOP", rotate, "TOP", 0, -6)
-	rotate:SetPoint('TOPLEFT', slider, 'BOTTOMLEFT', 0, -20)
-
 	local rpTitle = frame:CreateFontString("rpTitleString","ARTWORK","GameTooltipHeaderText");
 	rpTitle:SetText("Runic Power")
-	rpTitle:SetPoint('TOPLEFT', rotate, 'BOTTOMLEFT', -20, -10)
+	rpTitle:SetPoint('TOPLEFT', graphicsTitle, 'BOTTOMLEFT', 0, -85)
 
-	local rpEnable = CreateFrame("CheckButton", "RPEnable", frame, "OptionsCheckButtonTemplate");
+--[[	local rpEnable = CreateFrame("CheckButton", "RPEnable", frame, "OptionsCheckButtonTemplate");
 	getglobal(rpEnable:GetName().."Text"):SetText("Enabled");
 	rpEnable:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.rp) end)
 	rpEnable:SetScript('OnClick', function(self) DKIRunes_Saved.rp = self:GetChecked() end)
-	rpEnable:SetPoint('TOPLEFT', rpTitle, 'BOTTOMLEFT', 20, -5)
+	rpEnable:SetPoint('TOPLEFT', rpTitle, 'BOTTOMLEFT', 5, -5)
+--]]
+
+	runicBar0 = CreateFrame("Frame", "RunicBar0", frame, "UIDropDownMenuTemplate"); 
+	runicBar0:SetPoint('TOPLEFT', rpTitle, 'BOTTOMLEFT', 5, -5)
+	UIDropDownMenu_Initialize(runicBar0, RunicBar0_Initialise)
+
+	local runicBar0Title = frame:CreateFontString("runicBar0TitleString","ARTWORK","GameFontNormal");
+	runicBar0Title:SetText("Port Side Bar")
+	runicBar0Title:SetPoint('LEFT', runicBar0, 'RIGHT', 120, 0)
+
+	runicBar1 = CreateFrame("Frame", "RunicBar1", frame, "UIDropDownMenuTemplate"); 
+	runicBar1:SetPoint('TOP', runicBar0, 'BOTTOM', 0, -5)
+	UIDropDownMenu_Initialize(runicBar1, RunicBar1_Initialise)
+
+	local runicBar1Title = frame:CreateFontString("runicBar1TitleString","ARTWORK","GameFontNormal");
+	runicBar1Title:SetText("Starboard Side Bar")
+	runicBar1Title:SetPoint('LEFT', runicBar1, 'RIGHT', 120, 0)
 
 	local rpCounterEnable = CreateFrame("CheckButton", "RPCounter", frame, "OptionsCheckButtonTemplate");
 	getglobal(rpCounterEnable:GetName().."Text"):SetText("Numeric Display");
 	rpCounterEnable:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.rpCounter) end)
 	rpCounterEnable:SetScript('OnClick', function(self) DKIRunes_Saved.rpCounter = self:GetChecked() end)
-	rpCounterEnable:SetPoint('LEFT', rpEnable, 'RIGHT', 100, 0)
+	rpCounterEnable:SetPoint('TOP', runicBar1, 'BOTTOM', 10, -5)
 
 	local counterSlider = CreateFrame("Slider", "CounterScaleSlider", frame, "OptionsSliderTemplate")
 	counterSlider:SetMinMaxValues(0.2, 3.0)
@@ -416,7 +526,7 @@ function DKIRunes_populateBlizzardOptions()
 
 	local heroTitle = frame:CreateFontString("heroTitleString","ARTWORK","GameTooltipHeaderText");
 	heroTitle:SetText("Rune Slide")
-	heroTitle:SetPoint('TOPLEFT', rpEnable, 'BOTTOMLEFT', -20, -10)
+	heroTitle:SetPoint('TOPLEFT', rpCounterEnable, 'BOTTOMLEFT', -20, -10)
 
 	local heroEnable = CreateFrame("CheckButton", "HeroEnable", frame, "OptionsCheckButtonTemplate");
 	getglobal(heroEnable:GetName().."Text"):SetText("Enabled");
@@ -471,34 +581,44 @@ function DKIRunes_Rotate(spin)
 		DKIRunes_Saved.rotate = 0;
 	end
 
-	EbonBlade_Power:ClearAllPoints()
+	EbonBlade_Bar_0:ClearAllPoints()
+	EbonBlade_Bar_1:ClearAllPoints()
 
 	if (DKIRunes_Saved.rotate == 1) then
 		EbonBlade_Base:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
-		EbonBlade_Power:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
-		EbonBlade_Power:SetPoint('TOP', DKIRunesFrame, 'CENTER', 0, 86)
+		EbonBlade_Bar_0:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
+		EbonBlade_Bar_0:SetPoint('TOPLEFT', DKIRunesFrame, 'CENTER', 0, 86)
+		EbonBlade_Bar_1:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
+		EbonBlade_Bar_1:SetPoint('TOPRIGHT', DKIRunesFrame, 'CENTER', 0, 86)
 		EbonBlade_Top:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 	elseif (DKIRunes_Saved.rotate == 2) then
 		EbonBlade_Base:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
-		EbonBlade_Power:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
-		EbonBlade_Power:SetPoint('RIGHT', DKIRunesFrame, 'CENTER', 86, 0)
+		EbonBlade_Bar_0:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
+		EbonBlade_Bar_0:SetPoint('TOPRIGHT', DKIRunesFrame, 'CENTER', 86, 0)
+		EbonBlade_Bar_1:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
+		EbonBlade_Bar_1:SetPoint('BOTTOMRIGHT', DKIRunesFrame, 'CENTER', 86, 0)
 		EbonBlade_Top:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 	elseif (DKIRunes_Saved.rotate == 3) then
 		EbonBlade_Base:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
-		EbonBlade_Power:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
-		EbonBlade_Power:SetPoint('BOTTOM', DKIRunesFrame, 'CENTER', 0, -86)
+		EbonBlade_Bar_0:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
+		EbonBlade_Bar_0:SetPoint('BOTTOMRIGHT', DKIRunesFrame, 'CENTER', 0, -86)
+		EbonBlade_Bar_1:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
+		EbonBlade_Bar_1:SetPoint('BOTTOMLEFT', DKIRunesFrame, 'CENTER', 0, -86)
 		EbonBlade_Top:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 	else
 		EbonBlade_Base:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
-		EbonBlade_Power:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
-		EbonBlade_Power:SetPoint('LEFT', DKIRunesFrame, 'CENTER', -86, 0)
+		EbonBlade_Bar_0:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
+		EbonBlade_Bar_0:SetPoint('BOTTOMLEFT', DKIRunesFrame, 'CENTER', -86, 0)
+		EbonBlade_Bar_1:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
+		EbonBlade_Bar_1:SetPoint('TOPLEFT', DKIRunesFrame, 'CENTER', -86, 0)
 		EbonBlade_Top:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 	end
 
 	if (DKIRunes_Saved.rotate % 2 == 1) then
 		EbonBlade_Base:SetWidth(64);
 		EbonBlade_Base:SetHeight(256);
-		EbonBlade_Power:SetWidth(34);
+		EbonBlade_Bar_0:SetWidth(17);
+		EbonBlade_Bar_1:SetWidth(17);
 		EbonBlade_Top:SetWidth(256);
 		EbonBlade_Top:SetHeight(512);
 		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[1])
@@ -510,7 +630,8 @@ function DKIRunes_Rotate(spin)
 	else
 		EbonBlade_Base:SetWidth(256);
 		EbonBlade_Base:SetHeight(64);
-		EbonBlade_Power:SetHeight(34);
+		EbonBlade_Bar_0:SetHeight(17);
+		EbonBlade_Bar_1:SetHeight(17);
 		EbonBlade_Top:SetWidth(512);
 		EbonBlade_Top:SetHeight(256);
 		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[1], 0)
@@ -521,7 +642,7 @@ function DKIRunes_Rotate(spin)
 		getglobal("Rune4"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[4], 0)
 	end
 
-	DKIRunes_RPUpdate();
+	DKIRunes_BarUpdate();
 	FixRPCounterLocation()
 	DKIRunes_UpdateArt();
 	DKIRunes_UpdateUI();
@@ -547,7 +668,10 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.hero = false;
 	DKIRunes_Saved.heroSlide = 150;
 	DKIRunes_Saved.heroOrigin = 1;
-	DKIRunes_Saved.rp = true;
+	DKIRunes_Saved.bar0 = 1;
+	RunicBar0_Set(DKIRunes_Saved.bar0)
+	DKIRunes_Saved.bar1 = 1;
+	RunicBar1_Set(DKIRunes_Saved.bar1)
 	DKIRunes_Saved.rpCounter = true;
 	DKIRunes_Saved.counterScale = 1;
 	DKIRunes_Saved.fade = false;
@@ -560,6 +684,8 @@ function DKIRunes_Reset(frame)
 
 	UIDropDownMenu_Initialize(getglobal("RuneFrameGraphics"), Graphics_Initialise)
 	UIDropDownMenu_Initialize(getglobal("HeroOrigin"), HeroOrigin_Initialise)
+	UIDropDownMenu_Initialize(getglobal("RunicBar0"), RunicBar0_Initialise)
+	UIDropDownMenu_Initialize(getglobal("RunicBar1"), RunicBar1_Initialise)
 
 end
 
@@ -603,6 +729,122 @@ function Graphics_OnClick()
 	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
 	DKIRunes_Saved.artStyle = this.value;
 	DKIRunes_UpdateUI();
+end
+
+function RunicBar0_Initialise()
+	level = level or 1
+	 
+	local info = UIDropDownMenu_CreateInfo();
+	 
+	info.text = "none"; 
+	info.value = 0; 
+	info.func = function() RunicBar0_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar0 == 0); 
+	UIDropDownMenu_AddButton(info, level); 
+	 
+	info.text = "Runic Power"; 
+	info.value = 1; 
+	info.func = function() RunicBar0_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar0 == 1); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Health Points"; 
+	info.value = 2; 
+	info.func = function() RunicBar0_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar0 == 2); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Anti-Health Points"; 
+	info.value = 3; 
+	info.func = function() RunicBar0_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar0 == 3); 
+	UIDropDownMenu_AddButton(info, level);
+
+	UIDropDownMenu_SetSelectedValue(RunicBar0, DKIRunes_Saved.bar0)
+end
+
+function RunicBar0_OnClick()
+	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
+	DKIRunes_Saved.bar0 = this.value;
+	RunicBar0_Set(this.value)
+	DKIRunes_UpdateUI();
+end
+
+function RunicBar0_Set(bar)
+	if(bar == 0) then
+		EbonBlade_Bar_0:Hide();
+	else
+		EbonBlade_Bar_0:Show();
+	end
+	if(bar == 2) then
+		EbonBlade_Bar_0:SetTexture(0.0,1.0,0.0,0.75)
+	elseif(bar == 3) then
+		EbonBlade_Bar_0:SetTexture(1.0,0.0,0.0,0.75)
+	else
+		EbonBlade_Bar_0:SetTexture(0.0,0.82,1.0,0.75)
+	end
+end
+
+function RunicBar1_Initialise()
+	level = level or 1
+	 
+	local info = UIDropDownMenu_CreateInfo();
+	 
+	info.text = "none"; 
+	info.value = 0; 
+	info.func = function() RunicBar1_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar1 == 0); 
+	UIDropDownMenu_AddButton(info, level); 
+	 
+	info.text = "Runic Power"; 
+	info.value = 1; 
+	info.func = function() RunicBar1_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar1 == 1); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Health Points"; 
+	info.value = 2; 
+	info.func = function() RunicBar1_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar1 == 2); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Anti-Health Points"; 
+	info.value = 3; 
+	info.func = function() RunicBar1_OnClick() end; 
+	info.owner = this:GetParent(); 
+	info.checked = (DKIRunes_Saved.bar1 == 3); 
+	UIDropDownMenu_AddButton(info, level);
+
+	UIDropDownMenu_SetSelectedValue(RunicBar1, DKIRunes_Saved.bar1)
+end
+
+function RunicBar1_OnClick()
+	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
+	DKIRunes_Saved.bar1 = this.value;
+	RunicBar1_Set(this.value)
+	DKIRunes_UpdateUI();
+end
+
+function RunicBar1_Set(bar)
+	if(bar == 0) then
+		EbonBlade_Bar_1:Hide();
+	else
+		EbonBlade_Bar_1:Show();
+	end
+	if(bar == 2) then
+		EbonBlade_Bar_1:SetTexture(0.0,1.0,0.0,0.75)
+	elseif(bar == 3) then
+		EbonBlade_Bar_1:SetTexture(1.0,0.0,0.0,0.75)
+	else
+		EbonBlade_Bar_1:SetTexture(0.0,0.82,1.0,0.75)
+	end
 end
 
 function HeroOrigin_Initialise()
@@ -662,7 +904,7 @@ function FixRPCounterLocation()
 end
 
 function DKIRunes_Debug()
-	DKIRunes_RPUpdate()
+	DKIRunes_BarUpdate()
 --	ChatFrame1:AddMessage(" style: "..tostring(DKIRunes_Saved.artStyle).." x: "..tostring(DKIRunes_Saved.x).." style: "..tostring(DKIRunes_Saved.y) );
 end
 
