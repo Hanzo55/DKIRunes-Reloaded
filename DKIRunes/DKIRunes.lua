@@ -44,6 +44,15 @@ local runeOffset = {
 	[4] = -60,
 }
 
+local runeBurst = {
+	[1] = true,
+	[2] = true,
+	[3] = true,
+	[4] = true,
+	[5] = true,
+	[6] = true,
+}
+
 local inCombat = 0
 
 -- Saved Variable
@@ -66,6 +75,7 @@ DKIRunes_Saved = {
 	rpCounter = true;
 	counterScale = 1;
 	fade = false;
+	empower = true;
 };
 
 
@@ -136,42 +146,39 @@ function DKIRunes_LoadNewSavedVariables()
 	if(DKIRunes_Saved.swap == nil) then
 		DKIRunes_Saved.swap = 0;
 	end		
-	if(DKIRunes_Saved.empower == nil) then
-		DKIRunes_Saved.empower = true;
-	end		
 end
 
 function DKIRunes_OnLoad(self)
 	
-	RuneButtonIndividual1:Hide();
-	RuneButtonIndividual2:Hide();
-	RuneButtonIndividual3:Hide();
-	RuneButtonIndividual4:Hide();
-	RuneButtonIndividual5:Hide();
-	RuneButtonIndividual6:Hide();
-	
+	self.runes = {};
+		
 	-- Disable rune frame if not a death knight.
 	local _, class = UnitClass("player");
 	
 	if ( class ~= "DEATHKNIGHT" ) then
 		self:Hide();
-	end
+	else
+		RuneButtonIndividual1:Hide();
+		RuneButtonIndividual2:Hide();
+		RuneButtonIndividual3:Hide();
+		RuneButtonIndividual4:Hide();
+		RuneButtonIndividual5:Hide();
+		RuneButtonIndividual6:Hide();
 	
-	if ( GetCVarBool("predictedPower") and frequentUpdates ) then
-		self:RegisterEvent("UNIT_RUNIC_POWER");
+		if ( GetCVarBool("predictedPower") and frequentUpdates ) then
+			self:RegisterEvent("UNIT_RUNIC_POWER");
+		end
+		self:RegisterEvent("RUNE_POWER_UPDATE");
+		self:RegisterEvent("RUNE_TYPE_UPDATE");
+		self:RegisterEvent("RUNE_REGEN_UPDATE");
+		self:RegisterEvent("PLAYER_ENTERING_WORLD");
+		self:RegisterEvent("VARIABLES_LOADED");
+		self:RegisterEvent("PLAYER_ENTER_COMBAT");
+		self:RegisterEvent("PLAYER_LEAVE_COMBAT");
+
+		self:SetScript("OnEvent", DKIRunes_OnEvent);
+		
 	end
-	self:RegisterEvent("RUNE_POWER_UPDATE");
-	self:RegisterEvent("RUNE_TYPE_UPDATE");
-	self:RegisterEvent("RUNE_REGEN_UPDATE");
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self:RegisterEvent("VARIABLES_LOADED");
-	self:RegisterEvent("PLAYER_ENTER_COMBAT");
-	self:RegisterEvent("PLAYER_LEAVE_COMBAT");
-
-	self:SetScript("OnEvent", DKIRunes_OnEvent);
-	
-	self.runes = {};
-
 end
 
 function DKIRunes_OnEvent (self, event, ...)
@@ -371,12 +378,7 @@ function DKIRunes_OnUpdate(self, update)
 		local runeLength = DKIRuneLengths[runeType];
 		local maxFrameX = math.fmod( runeLength, 8);
 		local maxFrameY = math.floor( runeLength / 8 );
-		DKIRunes_AnimateRune(i, runeLength, maxFrameX, maxFrameY);
-
-		if ( _G["Rune"..i].flash and _G["Rune"..i].flash > 0 ) then
-			DKIRunes_Rune_SetFrame(i, 0, 0);
-			_G["Rune"..i].flash = _G["Rune"..i].flash - 1;
-		end
+		DKIRunes_AnimateRune(i, runeLength - 2, maxFrameX, maxFrameY);
 	end
 
 	DKIRunes_BarUpdate()
@@ -393,10 +395,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 	end
 	
 	if ( runeReady or percent <= 0 ) then
-		if ( _G["Rune"..rune].notReady ) then
-			_G["Rune"..rune].flash = 2.0;
-			_G["Rune"..rune].notReady = nil;
-		end
+		runeBurst[rune] = true;
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[rune] ) 
 		else
@@ -414,18 +413,17 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 			end
 		end
 
-		_G["Rune"..rune].notReady = true;
-
-		local rawFrame = animationStart;
-		if (DKIRunes_Saved.animate) then
+		local rawframe;
+		if(runeBurst[rune]) then
+			runeBurst[rune] = false;
+			rawFrame = animationStart + 1;
+		else
 			rawFrame = math.floor( percent * animationStart);
-			if ( rawFrame > animationStart ) then 
-				rawFrame = animationStart - 2;
+			if ((DKIRunes_Saved.animate == nil and rawFrame > 0) or rawFrame > animationStart) then 
+				rawFrame = animationStart;
 			end
-		else	
-			rawFrame = animationStart - 2;
 		end
-
+		
 		frameY = math.floor( rawFrame / 8 );
 		frameX = math.fmod( rawFrame, 8);
 
@@ -625,6 +623,15 @@ function DKIRunes_Reset(frame)
 	UIDropDownMenu_Initialize(_G["HeroOrigin"], HeroOrigin_Initialise)
 	UIDropDownMenu_Initialize(_G["RunicBar0"], RunicBar0_Initialise)
 	UIDropDownMenu_Initialize(_G["RunicBar1"], RunicBar1_Initialise)
+	UIDropDownMenu_Initialize(_G["DeadRune"], DeadRune_Initialise)
+	UIDropDownMenu_Initialize(_G["Swap"], Swap_Initialise)
+	UIDropDownMenu_Initialize(_G["BR1Slot"], BR1_Initialise)
+	UIDropDownMenu_Initialize(_G["BR2Slot"], BR2_Initialise)
+	UIDropDownMenu_Initialize(_G["FR1Slot"], FR1_Initialise)
+	UIDropDownMenu_Initialize(_G["FR2Slot"], FR2_Initialise)
+	UIDropDownMenu_Initialize(_G["UH1Slot"], UH1_Initialise)
+	UIDropDownMenu_Initialize(_G["UH2Slot"], UH2_Initialise)
+	
 
 end
 

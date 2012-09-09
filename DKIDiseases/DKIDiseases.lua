@@ -201,7 +201,10 @@ local IncludeSF = nil
 local variablesLoaded;
 
 -- Saved Variables
-DKIDiseases_Saved = {};
+DKIDiseases_Saved = {
+	ep = true;
+	sf = true;
+};
 
 function DKIDiseases_LoadNewSavedVariables()
 
@@ -274,12 +277,6 @@ function DKIDiseases_LoadNewSavedVariables()
 	if(DKIDiseases_Saved.rotate == nil) then
 		DKIDiseases_Saved.rotate = 0;
 	end	
-	if(DKIDiseases_Saved.ep == nil) then
-		DKIDiseases_Saved.ep = 1;
-	end
-	if(DKIDiseases_Saved.sf == nil) then
-		DKIDiseases_Saved.sf = 1;
-	end
 
 end
 
@@ -880,8 +877,8 @@ function DKIDiseases_Reset()
 	DKIDiseases_Saved.strata = 1;
 	DKIDiseases_Saved.fade = false;
 	DKIDiseases_Saved.rotate = 0;
-	DKIDiseases_Saved.ep = 1;
-	DKIDiseases_Saved.sf = 1;
+	DKIDiseases_Saved.ep = true;
+	DKIDiseases_Saved.sf = true;
 	
 	for i=0, 3 do
 		diseaseIcon[i][0]:SetMovable(false)

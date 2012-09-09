@@ -23,7 +23,7 @@ function DKIRunes_populateBlizzardOptions()
 	reset:SetPoint("TOPLEFT", 10, -20)
 
 	local lock = CreateFrame("CheckButton", "FrameLock", frame, "OptionsCheckButtonTemplate");
-	_G[lock:GetName().."Text"]:SetText("Unlock Frame");
+	_G[lock:GetName().."Text"]:SetText("Unlock Runes");
 	lock:SetScript('OnShow', function(self) self:SetChecked(DKIRunesFrame:IsMouseEnabled()) end)
 	lock:SetScript('OnClick', function(self) DKIRunes_Lock(self:GetChecked()) end)
 	lock:SetPoint('LEFT', reset, 'RIGHT', 15, -2)
@@ -36,47 +36,41 @@ function DKIRunes_populateBlizzardOptions()
 	rotate:GetFontString():SetPoint("TOP", rotate, "TOP", 0, -6)
 	rotate:SetPoint('LEFT', lock, 'RIGHT', 115, 2)
 
-	local animateTitle = frame:CreateFontString("animateTitleString","ARTWORK","GameTooltipHeaderText");
-	animateTitle:SetText("Rune Options")
-	animateTitle:SetPoint('TOPLEFT', reset, 'BOTTOMLEFT', 0, -10)
+	local fade = CreateFrame("CheckButton", "AgroFade", frame, "OptionsCheckButtonTemplate");
+	_G[fade:GetName().."Text"]:SetText("Fade out of Combat");
+	fade:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.fade) end)
+	fade:SetScript('OnClick', function(self) DKIRunes_Saved.fade = self:GetChecked() end)
+	fade:SetPoint('TOPLEFT', reset, 'BOTTOMLEFT', 0, -10)
 
-	local animate = CreateFrame("CheckButton", "AnimateCheck", frame, "OptionsCheckButtonTemplate");
-	_G[animate:GetName().."Text"]:SetText("Flame Animation");
-	animate:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.animate) end)
-	animate:SetScript('OnClick', function(self) DKIRunes_Saved.animate = self:GetChecked() end)
-	animate:SetPoint('TOPLEFT', animateTitle, 'BOTTOMLEFT', 20, -5)
+	local optionsTitle = frame:CreateFontString("optionsTitleString","ARTWORK","GameTooltipHeaderText");
+	optionsTitle:SetText("Rune Options")
+	optionsTitle:SetPoint('TOPLEFT', reset, 'BOTTOMLEFT', 0, -40)
 
 	local empower = CreateFrame("CheckButton", "EmpowerCheck", frame, "OptionsCheckButtonTemplate");
-	_G[empower:GetName().."Text"]:SetText("Empowerment Animation");
+	_G[empower:GetName().."Text"]:SetText("Runic Empowerment Animation");
 	empower:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.empower) end)
 	empower:SetScript('OnClick', function(self) DKIRunes_Saved.empower = self:GetChecked() end)
-	empower:SetPoint('LEFT', animate, 'RIGHT', 120, 0)
+	empower:SetPoint('TOPLEFT', optionsTitle, 'BOTTOMLEFT', 20, -5)
 
 	local gUholy = CreateFrame("CheckButton", "gUnholyCheck", frame, "OptionsCheckButtonTemplate");
 	_G[gUholy:GetName().."Text"]:SetText("Green Unholy");
 	gUholy:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.greenUnholy) end)
 	gUholy:SetScript('OnClick', function(self) DKIRunes_Saved.greenUnholy = self:GetChecked();DKIRunes_UpdateArt(); end)
-	gUholy:SetPoint('TOPLEFT', animate, 'BOTTOMLEFT', 0, 0)
+	gUholy:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
 
 	local pDeath = CreateFrame("CheckButton", "pDeathCheck", frame, "OptionsCheckButtonTemplate");
 	_G[pDeath:GetName().."Text"]:SetText("Purple Death");
 	pDeath:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.purpleDeath) end)
 	pDeath:SetScript('OnClick', function(self) DKIRunes_Saved.purpleDeath = self:GetChecked();DKIRunes_UpdateArt(); end)
-	pDeath:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
+	pDeath:SetPoint('LEFT', gUholy, 'RIGHT', 100, 0)
 
 	local graphicsTitle = frame:CreateFontString("graphicsTitleString","ARTWORK","GameTooltipHeaderText");
 	graphicsTitle:SetText("Rune Frame Graphics")
-	graphicsTitle:SetPoint('TOPLEFT', animate, 'BOTTOMLEFT', -20, -30)
+	graphicsTitle:SetPoint('TOPLEFT', optionsTitle, 'BOTTOMLEFT', 0, -70)
 
 	graphics = CreateFrame("Frame", "RuneFrameGraphics", frame, "UIDropDownMenuTemplate"); 
 	graphics:SetPoint('TOPLEFT', graphicsTitle, 'BOTTOMLEFT', 5, -5)
 	UIDropDownMenu_Initialize(graphics, Graphics_Initialise)
-
-	local fade = CreateFrame("CheckButton", "AgroFade", frame, "OptionsCheckButtonTemplate");
-	_G[fade:GetName().."Text"]:SetText("Fade out of Combat");
-	fade:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.fade) end)
-	fade:SetScript('OnClick', function(self) DKIRunes_Saved.fade = self:GetChecked() end)
-	fade:SetPoint('LEFT', graphics, 'RIGHT', 120, 0)
 
 	local slider = CreateFrame("Slider", "ScaleSlider", frame, "OptionsSliderTemplate")
 	slider:SetMinMaxValues(0.2, 2.0)
@@ -204,15 +198,25 @@ function DKIRunes_populateBlizzardOptions()
 	rcFrame:Hide();
 	InterfaceOptions_AddCategory(rcFrame);
 
+	local cooldownTitle = rcFrame:CreateFontString("cooldownTitleString","ARTWORK","GameTooltipHeaderText");
+	cooldownTitle:SetText("Rune Cooldown Options")
+	cooldownTitle:SetPoint("TOPLEFT", 10, -20)
+
+	local animate = CreateFrame("CheckButton", "AnimateCheck", rcFrame, "OptionsCheckButtonTemplate");
+	_G[animate:GetName().."Text"]:SetText("Flame Animation");
+	animate:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.animate) end)
+	animate:SetScript('OnClick', function(self) DKIRunes_Saved.animate = self:GetChecked() end)
+	animate:SetPoint('TOPLEFT', cooldownTitle, 'BOTTOMLEFT', 20, -5)
+
 	local cooldown = CreateFrame("CheckButton", "CooldownCheck", rcFrame, "OptionsCheckButtonTemplate");
 	_G[cooldown:GetName().."Text"]:SetText("OmniCC Support");
 	cooldown:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.cooldown) end)
 	cooldown:SetScript('OnClick', function(self) DKIRunes_Saved.cooldown = self:GetChecked() end)
-	cooldown:SetPoint('TOPLEFT', 10, -10)
+	cooldown:SetPoint('LEFT', animate, 'RIGHT', 120, 0)
 
 	local heroTitle = rcFrame:CreateFontString("heroTitleString","ARTWORK","GameTooltipHeaderText");
 	heroTitle:SetText("Rune Slide")
-	heroTitle:SetPoint("TOPLEFT", 10, -40)
+	heroTitle:SetPoint("TOPLEFT", 10, -80)
 
 	local heroEnable = CreateFrame("CheckButton", "HeroEnable", rcFrame, "OptionsCheckButtonTemplate");
 	_G[heroEnable:GetName().."Text"]:SetText("Enabled");
@@ -259,10 +263,14 @@ function DKIRunes_populateBlizzardOptions()
 	deadRune:SetPoint('LEFT', deadRuneTitle, 'RIGHT', -15, -3)
 	UIDropDownMenu_SetWidth(deadRune, 210, 5)
 	UIDropDownMenu_Initialize(deadRune, DeadRune_Initialise)
+
+	local priorityTitle = rcFrame:CreateFontString("priorityTitle","ARTWORK","GameTooltipHeaderText");
+	priorityTitle:SetText("Rune Priority")
+	priorityTitle:SetPoint('TOPLEFT', heroTitle, 'BOTTOMLEFT', 0, -120)
 	
 	local swapTitle = rcFrame:CreateFontString("swapTitleString","ARTWORK","GameFontNormal");
 	swapTitle:SetText("Runes with shorter cooldowns")
-	swapTitle:SetPoint('TOPLEFT', heroTitle, 'BOTTOMLEFT', 0, -110)
+	swapTitle:SetPoint('TOPLEFT', priorityTitle, 'BOTTOMLEFT', 0, -10)
 	
 	swap = CreateFrame("Frame", "Swap", rcFrame, "UIDropDownMenuTemplate"); 
 	swap:SetPoint('LEFT', swapTitle, 'RIGHT', -15, -3)
