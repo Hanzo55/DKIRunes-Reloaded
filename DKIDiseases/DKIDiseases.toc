@@ -1,4 +1,4 @@
-## Interface: 30100
+## Interface: 30200
 ## Title: DeathKnight.info Diseases
 ## Notes: Disease display based on the contest and community feedback of DeathKnight.info
 ##
