@@ -46,11 +46,11 @@ DKIRunes_Saved = {
 	artStyle = 1;
 	animate = true;
 	cooldown = false;
-	parent = "PlayerFrame";
-	point = "TOP";
-	parentPoint = "BOTTOM";
-	x = 62;
-	y = 152;
+	parent = "UIParent";
+	point = "TOPLEFT";
+	parentPoint = "TOPLEFT";
+	x = 55;
+	y = 155;
 	scale = 0.8;
 	rotate = 0;
 	hero = false;
@@ -155,7 +155,7 @@ function DKIRunes_OnUpdate(self, update)
 
 	if(DKIRunesFrame:IsMouseEnabled()) then
 		DKIRunes_Saved.point, relativeTo, DKIRunes_Saved.parentPoint, DKIRunes_Saved.x, DKIRunes_Saved.y = DKIRunesFrame:GetPoint();
-		DKIRunes_Saved.parent = "UIParent";
+--		DKIRunes_Saved.parent = relativeTo:GetName();
 	end
 
 	for i=1, 6 do
@@ -437,11 +437,11 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.artStyle = 1;
 	DKIRunes_Saved.animate = true;
 	DKIRunes_Saved.cooldown = false;
-	DKIRunes_Saved.parent = "PlayerFrame";
+	DKIRunes_Saved.parent = "UIParent";
 	DKIRunes_Saved.point = "TOPLEFT";
 	DKIRunes_Saved.parentPoint = "TOPLEFT";
-	DKIRunes_Saved.x = 78;
-	DKIRunes_Saved.y = 158;
+	DKIRunes_Saved.x = 55;
+	DKIRunes_Saved.y = 155;
 	DKIRunes_Saved.scale = 0.8;
 	DKIRunes_Saved.rotate = -1;
 	DKIRunes_Rotate(true);
@@ -452,15 +452,19 @@ function DKIRunes_Reset(frame)
 	DKIRunesFrame:SetMovable(false)
 	DKIRunesFrame:EnableMouse(false)
 
+	UIDropDownMenu_Initialize(getglobal("RuneFrameGraphics"), Graphics_Initialise)
+	UIDropDownMenu_Initialize(getglobal("HeroOrigin"), HeroOrigin_Initialise)
+
+	HeroOrigin_Initialise()
+
 	DKIRunes_UpdateUI();
-	DKIRunes_ConfigChange();
 end
 
 function DKIRunes_Lock(checked)
 	DKIRunesFrame:SetMovable(checked)
 	DKIRunesFrame:EnableMouse(checked)
 	DKIRunes_Saved.point, relativeTo, DKIRunes_Saved.parentPoint, DKIRunes_Saved.x, DKIRunes_Saved.y = DKIRunesFrame:GetPoint();
-	DKIRunes_Saved.parent = relativeTo:GetName();
+--	DKIRunes_Saved.parent = relativeTo:GetName();
 end
 
 
@@ -490,7 +494,7 @@ function Graphics_Initialise()
 	info.checked = (DKIRunes_Saved.artStyle == 2); 
 	UIDropDownMenu_AddButton(info, level);
 
-	UIDropDownMenu_SetSelectedValue(getglobal("RuneFrameGraphics"), DKIRunes_Saved.artStyle)
+	UIDropDownMenu_SetSelectedValue(RuneFrameGraphics, DKIRunes_Saved.artStyle)
 end
 
 function Graphics_OnClick()
