@@ -1,0 +1,11 @@
+## Interface: 30000
+## Title: DeathKnight.Info Runes
+## Notes: Rune display based on the contest and community feedback of DeathKnight.info
+##		http://deathknight.info/
+##	  Initial coding framework derived from EbonBlade 2.4.3
+##		http://www.curse.com/downloads/details/13315/
+##	  Rune design by vectorvixen
+##		http://www.vectorvixen.com/
+##	  
+## SavedVariables: DKIRunes_Saved
+DKIRunes.xml
