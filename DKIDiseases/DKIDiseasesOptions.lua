@@ -82,14 +82,14 @@ function DKIDiseases_populateBlizzardOptions()
 	optTitle:SetText("Optional Tracking")
 	optTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -40)
 
-	local epCheck = CreateFrame("CheckButton", "EPCheck", frame, "OptionsCheckButtonTemplate");
-	_G[epCheck:GetName().."Text"]:SetText("Ebon Plague");
-	epCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.ep) end)
-	epCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.ep = self:GetChecked();DKIDiseases_Talents_Check(); end)
-	epCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
+	--local epCheck = CreateFrame("CheckButton", "EPCheck", frame, "OptionsCheckButtonTemplate");
+	--_G[epCheck:GetName().."Text"]:SetText("Ebon Plague");
+	--epCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.ep) end)
+	--epCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.ep = self:GetChecked();DKIDiseases_Talents_Check(); end)
+	--epCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
 
 	local sfCheck = CreateFrame("CheckButton", "SFCheck", frame, "OptionsCheckButtonTemplate");
-	_G[sfCheck:GetName().."Text"]:SetText("Scarlet Fever");
+	_G[sfCheck:GetName().."Text"]:SetText("Weakened Blows");
 	sfCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.sf) end)
 	sfCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.sf = self:GetChecked();DKIDiseases_Talents_Check() end)
 	sfCheck:SetPoint('LEFT', epCheck, 'RIGHT', 120, 0)
