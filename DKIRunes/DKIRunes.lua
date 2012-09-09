@@ -323,12 +323,6 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 			rawFrame = animationStart - 2;
 		end
 
-		if(DKIRunes_Saved.cooldown) then
-			local cooldown = getglobal("Rune"..rune.."Cooldown");
-			local displayCooldown = (runeReady and 0) or 1;
-			CooldownFrame_SetTimer(cooldown, start, duration, displayCooldown);
-		end
-
 		frameY = math.floor( rawFrame / 8 );
 		frameX = math.fmod( rawFrame, 8);
 
@@ -350,6 +344,12 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 			end
 		end
 
+	end
+
+	if(DKIRunes_Saved.cooldown) then
+		local cooldown = getglobal("Rune"..rune.."Cooldown");
+		local displayCooldown = 1;
+		CooldownFrame_SetTimer(cooldown, start, duration, displayCooldown);
 	end
 
 	DKIRunes_Rune_SetFrame(rune, frameX, frameY);
