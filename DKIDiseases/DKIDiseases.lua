@@ -226,6 +226,8 @@ function DKIDiseases_OnLoad(self)
 		self:RegisterEvent("PLAYER_ENTER_COMBAT");
 		self:RegisterEvent("PLAYER_LEAVE_COMBAT");
 		self:RegisterEvent("PLAYER_ENTERING_WORLD");
+		self:RegisterEvent("PLAYER_ALIVE");
+		self:RegisterEvent("PLAYER_TALENT_UPDATE");
 
 		DKIDiseasesFrame:SetScript("OnEvent", DKIDiseases_OnEvent)
 		DKIDiseasesFrame:SetScript("OnUpdate", DKIDiseases_OnUpdate)
@@ -258,6 +260,12 @@ function DKIDiseases_OnEvent(self, event, ...)
 	elseif (event == "CHARACTER_POINTS_CHANGED") then
 		DKIDiseases_Talents_Check();
 
+	elseif ( event == "PLAYER_ALIVE" ) then
+		DKIDiseases_Talents_Check();
+
+	elseif ( event == "PLAYER_TALENT_UPDATE" ) then
+		DKIDiseases_Talents_Check();
+
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
 
@@ -266,10 +274,6 @@ function DKIDiseases_OnEvent(self, event, ...)
 
 	end
 	
-	if(bar3ready ~= 3) then
-		bar3ready = GetNumTalentTabs();
-		DKIDiseases_Talents_Check();
-	end
 end
 
 function DKIDiseases_UpdateUI()
@@ -427,6 +431,7 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 		for i = 1, 6 do
 			local enabled, _, glyphSpellID, _ = GetGlyphSocketInfo(i);
 			if ( enabled and glyphSpellID == 63335) then
+				inCombat = 1;
 				pestTime = GetTime();
 				DKIDiseases_UpdateIconAndBar(59921, 1, true);
 				pestTime = nil;
@@ -533,8 +538,8 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, force)
 	if(duration and diseaseDuration ~= duration) then
 		diseaseDuration = duration;
 	end
-
-	if(endTime and (isMine == 1 or isMine == "player") or force) then
+--ChatFrame1:AddMessage("endtime: "..tostring(endTime).." isMine: "..tostring(endTime));
+	if(endTime and isMine == "player") then
 		local delta =  ( endTime - GetTime() ) / diseaseDuration;
 		DKIDiseases_Animate(id, delta, 1)
 
@@ -543,6 +548,10 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, force)
 		end
 	else
 		DKIDiseases_Animate(id, 0, 1)
+	end
+
+	if(force) then
+		pest[id] = pestTime + diseaseDuration;
 	end
 
 	if(pest[id]) then
