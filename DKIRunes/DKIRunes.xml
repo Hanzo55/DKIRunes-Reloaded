@@ -92,7 +92,7 @@
    <Layers>
      	<Layer level="BACKGROUND">
             <Texture name="EbonBlade_Base" file="Interface\AddOns\DKIRunes\EbonBlade_base">
-                <Size x="256" y="64"/>
+                <Size x="512" y="256"/>
         		<Anchors>
                      <Anchor point="CENTER" relativePoint="CENTER"/>
                 </Anchors>

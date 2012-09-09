@@ -323,9 +323,8 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 	local frameX, frameY = maxFrameX, maxFrameY;
 	local start, duration, runeReady = GetRuneCooldown(rune);
 	local percent = 1 - ((GetTime() - start)/duration);
-	local heroValue = percent * DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
 
-	if ( runeReady ) then
+	if ( runeReady or percent <= 0 ) then
 		if ( getglobal("Rune"..rune).notReady ) then
 			getglobal("Rune"..rune).flash = 2.0;
 			getglobal("Rune"..rune).notReady = nil;
@@ -338,6 +337,8 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 			end
 		end
 	else
+		
+		local heroValue = percent * DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
 
 		getglobal("Rune"..rune).notReady = true;
 
@@ -366,7 +367,6 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 		if ( percent <= 0 ) then
 			frameX = 0;
 		end
-		--ChatFrame1:AddMessage("Start: "..start.." percent: "..tostring(percent).." aStart: "..animationStart.." raw: "..rawFrame.." x: "..tostring(frameX).." y: "..tostring(frameY).." maxx: "..tostring(maxFrameX).." maxy: "..tostring(maxFrameY) );
 
 		if (DKIRunes_Saved.hero) then
 			if (DKIRunes_Saved.rotate == 1 or DKIRunes_Saved.rotate == 2) then
@@ -378,9 +378,12 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 				getglobal("Rune"..rune):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], -heroValue ) 
 			end
 		end
+
 	end
 
 	DKIRunes_Rune_SetFrame(rune, frameX, frameY);
+
+--	ChatFrame1:AddMessage("Start: "..start.." percent: "..tostring(percent).." aStart: "..animationStart.." x: "..tostring(frameX).." y: "..tostring(frameY).." maxx: "..tostring(maxFrameX).." maxy: "..tostring(maxFrameY) );
 
 
 end
@@ -615,8 +618,8 @@ function DKIRunes_Rotate(spin)
 	end
 
 	if (DKIRunes_Saved.rotate % 2 == 1) then
-		EbonBlade_Base:SetWidth(64);
-		EbonBlade_Base:SetHeight(256);
+		EbonBlade_Base:SetWidth(256);
+		EbonBlade_Base:SetHeight(512);
 		EbonBlade_Bar_0:SetWidth(17);
 		EbonBlade_Bar_1:SetWidth(17);
 		EbonBlade_Top:SetWidth(256);
@@ -628,8 +631,8 @@ function DKIRunes_Rotate(spin)
 		getglobal("Rune3"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[3])
 		getglobal("Rune4"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[4])
 	else
-		EbonBlade_Base:SetWidth(256);
-		EbonBlade_Base:SetHeight(64);
+		EbonBlade_Base:SetWidth(512);
+		EbonBlade_Base:SetHeight(256);
 		EbonBlade_Bar_0:SetHeight(17);
 		EbonBlade_Bar_1:SetHeight(17);
 		EbonBlade_Top:SetWidth(512);
