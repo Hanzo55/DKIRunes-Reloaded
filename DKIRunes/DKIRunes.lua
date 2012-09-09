@@ -41,6 +41,8 @@ local runeOffset = {
 	[4] = -60,
 }
 
+local inCombat = 0;
+
 -- Saved Variable
 DKIRunes_Saved = {
 	artStyle = 1;
@@ -58,6 +60,8 @@ DKIRunes_Saved = {
 	heroOrigin = 1;
 	rp = true;
 	rpCounter = true;
+	counterScale = 1;
+	fade = false;
 };
 
 function DKIRunes_OnLoad(self)
@@ -66,6 +70,7 @@ function DKIRunes_OnLoad(self)
 	
 	-- Disable rune frame if not a death knight.
 	local _, class = UnitClass("player");
+	
 	
 	if ( class ~= "DEATHKNIGHT" ) then
 		self:Hide();
@@ -79,6 +84,9 @@ function DKIRunes_OnLoad(self)
 	self:RegisterEvent("RUNE_REGEN_UPDATE");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("VARIABLES_LOADED");
+	self:RegisterEvent("PLAYER_ENTER_COMBAT");
+	self:RegisterEvent("PLAYER_LEAVE_COMBAT");
+	self:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 	self:SetScript("OnEvent", DKIRunes_OnEvent);
 	
@@ -90,6 +98,7 @@ function DKIRunes_OnLoad(self)
 	DKIRunesFrame:SetScript("OnMouseUp",function() DKIRunesFrame:StopMovingOrSizing() end)
 
 end
+
 
 
 function DKIRunes_OnEvent (self, event, ...)
@@ -122,6 +131,14 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunes_Rotate(false);
 		DKIRunes_UpdateUI();
 		DKIRunes_populateBlizzardOptions();
+		DKIRunesFrame:SetAlpha(0.3);
+
+	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
+		inCombat = 1;
+
+	elseif ( event == "PLAYER_LEAVE_COMBAT" ) then
+		inCombat = 0;
+
 	end
 	
 end
@@ -135,6 +152,7 @@ end
 -- Set Art
 function DKIRunes_UpdateArt()
 	DKIRunesFrame:SetScale(DKIRunes_Saved.scale);
+	DKIRunesRunicPower:SetScale(DKIRunes_Saved.counterScale);
 	DKIRunesEbonBlade:Hide();
 	DKIRunesHorizontalBackdrop:Hide();
 	DKIRunesVerticalBackdrop:Hide();
@@ -158,6 +176,7 @@ function DKIRunes_RPUpdate()
 	local power = UnitMana("player");
 	EbonBlade_Power:Hide();
 	DKIRunicPower:Hide();
+	DKIRunesFrame:SetAlpha(1.0);
 
 	if (power > 0) then
 		if(DKIRunes_Saved.rp) then
@@ -173,12 +192,13 @@ function DKIRunes_RPUpdate()
 			DKIRunicPower:SetText(power);
 			DKIRunicPower:Show();
 		end
+	elseif (inCombat == 0 and DKIRunes_Saved.fade) then
+		DKIRunesFrame:SetAlpha(0.3);
 	end
 end
 
 function DKIRunes_SetLocation()
 	DKIRunesFrame:ClearAllPoints()
-	DKIRunesFrame:Show();
 	DKIRunesFrame:SetPoint(DKIRunes_Saved.point, DKIRunes_Saved.parent, DKIRunes_Saved.parentPoint, DKIRunes_Saved.x, DKIRunes_Saved.y);
 end
 
@@ -302,6 +322,12 @@ function DKIRunes_populateBlizzardOptions()
 	reset:GetFontString():SetPoint("TOP", reset, "TOP", 0, -6)
 	reset:SetPoint("TOPLEFT", 20, -20)
 
+	local lock = CreateFrame("CheckButton", "FrameLock", frame, "OptionsCheckButtonTemplate");
+	getglobal(lock:GetName().."Text"):SetText("Unlock Frame");
+	lock:SetScript('OnShow', function(self) self:SetChecked(DKIRunesFrame:IsMouseEnabled()) end)
+	lock:SetScript('OnClick', function(self) DKIRunes_Lock(self:GetChecked()) end)
+	lock:SetPoint('LEFT', reset, 'RIGHT', 20, -2)
+
 --[[	local wtf = CreateFrame("Button", "wtf", frame, "OptionsButtonTemplate");
 	wtf:SetText("WTF?")
 	wtf:SetScript('OnClick', DKIRunes_Debug)
@@ -334,11 +360,11 @@ function DKIRunes_populateBlizzardOptions()
 	graphics:SetPoint('TOPLEFT', graphicsTitle, 'BOTTOMLEFT', 5, -5)
 	UIDropDownMenu_Initialize(graphics, Graphics_Initialise)
 
-	local lock = CreateFrame("CheckButton", "FrameLock", frame, "OptionsCheckButtonTemplate");
-	getglobal(lock:GetName().."Text"):SetText("Unlock Frame");
-	lock:SetScript('OnShow', function(self) self:SetChecked(DKIRunesFrame:IsMouseEnabled()) end)
-	lock:SetScript('OnClick', function(self) DKIRunes_Lock(self:GetChecked()) end)
-	lock:SetPoint('LEFT', graphics, 'RIGHT', 120, 0)
+	local fade = CreateFrame("CheckButton", "AgroFade", frame, "OptionsCheckButtonTemplate");
+	getglobal(fade:GetName().."Text"):SetText("Fade out of Combat");
+	fade:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.fade) end)
+	fade:SetScript('OnClick', function(self) DKIRunes_Saved.fade = self:GetChecked() end)
+	fade:SetPoint('LEFT', graphics, 'RIGHT', 122, 0)
 
 	local slider = CreateFrame("Slider", "ScaleSlider", frame, "OptionsSliderTemplate")
 	slider:SetMinMaxValues(0.2, 2.0)
@@ -378,6 +404,16 @@ function DKIRunes_populateBlizzardOptions()
 	rpCounterEnable:SetScript('OnClick', function(self) DKIRunes_Saved.rpCounter = self:GetChecked() end)
 	rpCounterEnable:SetPoint('LEFT', rpEnable, 'RIGHT', 100, 0)
 
+	local counterSlider = CreateFrame("Slider", "CounterScaleSlider", frame, "OptionsSliderTemplate")
+	counterSlider:SetMinMaxValues(0.2, 3.0)
+	counterSlider:SetValueStep(0.05)
+	counterSlider:SetWidth(60)
+	getglobal('CounterScaleSliderLow'):SetText("small")
+	getglobal('CounterScaleSliderHigh'):SetText("large")
+	counterSlider:SetScript('OnShow', function(self) self:SetValue(DKIRunes_Saved.counterScale) end)
+	counterSlider:SetScript('OnValueChanged', CounterSlider_ValueChanged)
+	counterSlider:SetPoint('LEFT', rpCounterEnable, 'RIGHT', 120, 0)
+
 	local heroTitle = frame:CreateFontString("heroTitleString","ARTWORK","GameTooltipHeaderText");
 	heroTitle:SetText("Rune Slide")
 	heroTitle:SetPoint('TOPLEFT', rpEnable, 'BOTTOMLEFT', -20, -10)
@@ -409,8 +445,8 @@ function DKIRunes_populateBlizzardOptions()
 	heroSlider:SetMinMaxValues(50, 300)
 	heroSlider:SetValueStep(1)
 	heroSlider:SetWidth(175)
-	getglobal('HeroSliderLow'):SetText("50")
-	getglobal('HeroSliderHigh'):SetText("300")
+	getglobal('HeroSliderLow'):SetText("near")
+	getglobal('HeroSliderHigh'):SetText("far")
 	heroSlider:SetScript('OnShow', function(self) self:SetValue(DKIRunes_Saved.heroSlide) end)
 	heroSlider:SetScript('OnValueChanged', HeroSlider_ValueChanged)
 	heroSlider:SetPoint('TOPLEFT', heroTitle, 'BOTTOMLEFT', 70, -35)
@@ -441,25 +477,21 @@ function DKIRunes_Rotate(spin)
 		EbonBlade_Base:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 		EbonBlade_Power:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 		EbonBlade_Power:SetPoint('TOP', DKIRunesFrame, 'CENTER', 0, 86)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, 101)
 		EbonBlade_Top:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0);
 	elseif (DKIRunes_Saved.rotate == 2) then
 		EbonBlade_Base:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 		EbonBlade_Power:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 		EbonBlade_Power:SetPoint('RIGHT', DKIRunesFrame, 'CENTER', 86, 0)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 101, 0)
 		EbonBlade_Top:SetTexCoord(1, 1, 1, 0, 0, 1, 0, 0);
 	elseif (DKIRunes_Saved.rotate == 3) then
 		EbonBlade_Base:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 		EbonBlade_Power:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 		EbonBlade_Power:SetPoint('BOTTOM', DKIRunesFrame, 'CENTER', 0, -86)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, -101)
 		EbonBlade_Top:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1);
 	else
 		EbonBlade_Base:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 		EbonBlade_Power:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 		EbonBlade_Power:SetPoint('LEFT', DKIRunesFrame, 'CENTER', -86, 0)
-		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -99, 0)
 		EbonBlade_Top:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1);
 	end
 
@@ -467,7 +499,6 @@ function DKIRunes_Rotate(spin)
 		EbonBlade_Base:SetWidth(64);
 		EbonBlade_Base:SetHeight(256);
 		EbonBlade_Power:SetWidth(34);
-		EbonBlade_Power:SetHeight(181);
 		EbonBlade_Top:SetWidth(256);
 		EbonBlade_Top:SetHeight(512);
 		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[1])
@@ -479,7 +510,6 @@ function DKIRunes_Rotate(spin)
 	else
 		EbonBlade_Base:SetWidth(256);
 		EbonBlade_Base:SetHeight(64);
-		EbonBlade_Power:SetWidth(181);
 		EbonBlade_Power:SetHeight(34);
 		EbonBlade_Top:SetWidth(512);
 		EbonBlade_Top:SetHeight(256);
@@ -492,6 +522,7 @@ function DKIRunes_Rotate(spin)
 	end
 
 	DKIRunes_RPUpdate();
+	FixRPCounterLocation()
 	DKIRunes_UpdateArt();
 	DKIRunes_UpdateUI();
 end
@@ -518,6 +549,8 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.heroOrigin = 1;
 	DKIRunes_Saved.rp = true;
 	DKIRunes_Saved.rpCounter = true;
+	DKIRunes_Saved.counterScale = 1;
+	DKIRunes_Saved.fade = false;
 
 	DKIRunesFrame:SetMovable(false)
 	DKIRunesFrame:EnableMouse(false)
@@ -608,6 +641,24 @@ end
 function HeroSlider_ValueChanged(self, value)
 	DKIRunes_Saved.heroSlide = value;
 	DKIRunes_UpdateUI();
+end
+
+function CounterSlider_ValueChanged(self, value)
+	DKIRunes_Saved.counterScale = value;
+	FixRPCounterLocation();
+	DKIRunes_UpdateUI();
+end
+
+function FixRPCounterLocation()
+	if (DKIRunes_Saved.rotate == 1) then
+		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -1, 101 / DKIRunes_Saved.counterScale)
+	elseif (DKIRunes_Saved.rotate == 2) then
+		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 100 / DKIRunes_Saved.counterScale, 0)
+	elseif (DKIRunes_Saved.rotate == 3) then
+		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -1, -101 / DKIRunes_Saved.counterScale)
+	else
+		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -101 / DKIRunes_Saved.counterScale, 0)
+	end
 end
 
 function DKIRunes_Debug()
