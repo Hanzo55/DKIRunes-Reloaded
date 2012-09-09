@@ -188,7 +188,7 @@ diseaseBarTexture[3][0] = diseaseBar[3]:CreateTexture("DKIDiseasesBar30", "BACKG
 diseaseBarTexture[3][1] = diseaseBar[3]:CreateTexture("DKIDiseasesBar31", "BORDER")
 
 local pestTime = nil
-local diseaseDuration = 15
+local diseaseDuration = 21
 local pest = {}
 local ap = {}
 --local IncludeEW = nil
@@ -201,7 +201,10 @@ local IncludeSF = nil
 local variablesLoaded;
 
 -- Saved Variables
-DKIDiseases_Saved = {};
+DKIDiseases_Saved = {
+	ep = true;
+	sf = true;
+};
 
 function DKIDiseases_LoadNewSavedVariables()
 
@@ -233,13 +236,13 @@ function DKIDiseases_LoadNewSavedVariables()
 		DKIDiseases_Saved.barOffset = 12;
 	end
 	if(DKIDiseases_Saved.ringTrack == nil) then
-		DKIDiseases_Saved.ringTrack = 5;
+		DKIDiseases_Saved.ringTrack = 2;
 	end
 	if(DKIDiseases_Saved.ringSil == nil) then
 		DKIDiseases_Saved.ringSil = 2;
 	end
 	if(DKIDiseases_Saved.iconTrack == nil) then
-		DKIDiseases_Saved.iconTrack = 4;
+		DKIDiseases_Saved.iconTrack = 1;
 	end
 	if(DKIDiseases_Saved.iconSil == nil) then
 		DKIDiseases_Saved.iconSil = 2;
@@ -273,7 +276,7 @@ function DKIDiseases_LoadNewSavedVariables()
 	end
 	if(DKIDiseases_Saved.rotate == nil) then
 		DKIDiseases_Saved.rotate = 0;
-	end
+	end	
 
 end
 
@@ -299,6 +302,10 @@ function DKIDiseases_OnLoad(self)
 
 		DKIDiseasesFrame:SetScript("OnEvent", DKIDiseases_OnEvent)
 		DKIDiseasesFrame:SetScript("OnUpdate", DKIDiseases_OnUpdate)
+		
+		for i=0, 3 do
+			DKIDiseases_FrameOnLoad(diseaseIcon[i][0]);
+		end
 	end
 end
 
@@ -315,9 +322,6 @@ function DKIDiseases_OnEvent(self, event, ...)
 		InitDisease(1, DISEASETYPE_FROSTFEVER);
 		
 	elseif ( event == "VARIABLES_LOADED" ) then
-		for i=0, 3 do
-			DKIDiseases_FrameOnLoad(diseaseIcon[i][0]);
-		end
 		DKIDiseases_LoadNewSavedVariables();
 		DKIDiseases_populateBlizzardOptions(diseaseIcon, diseaseBar);
 
@@ -477,24 +481,31 @@ end
 
 function DKIDiseases_Talents_Check()
 	_, _, _, _, SF_currentRank, _, _, _ = GetTalentInfo(1, 6);
+	_, _, _, _, Epi_currentRank, _, _, _ = GetTalentInfo(3, 3);
 	_, _, _, _, EP_currentRank, _, _, _ = GetTalentInfo(3, 18);
 
-	if (EP_currentRank > 0) then
+	if (EP_currentRank > 0 and DKIDiseases_Saved.ep) then
 		InitDisease(2, DISEASETYPE_EBONPLAGUE);
 		IncludeEP = true
 	else
+		IncludeEP = false
 		diseaseIcon[2][0]:Hide();
 		diseaseIcon[2][1]:Hide();
 		diseaseBar[2]:Hide();	
 	end
 
-	if (SF_currentRank > 0) then
+	if (SF_currentRank > 0 and DKIDiseases_Saved.sf) then
 		InitDisease(3, DISEASETYPE_SCARLETFEVER);
 		IncludeSF = true
 	else
+		IncludeSF = false
 		diseaseIcon[3][0]:Hide();
 		diseaseIcon[3][1]:Hide();
 		diseaseBar[3]:Hide();
+	end
+	
+	if (Epi_currentRank > 0) then
+		diseaseDuration = 21 + Epi_currentRank * 4;
 	end
 end
 
@@ -515,20 +526,19 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	if(player == "player" and spell == GetSpellInfo(45462)) then
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[0] = apBase + posBuff + negBuff;
+		if(IncludeSF) then
+			DKIDiseases_UpdateIconAndBar(81130, 3, true);
+		end		
 	end
 	
 	-- Icy Touch
 	if(player == "player" and spell == GetSpellInfo(45477)) then
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[1] = apBase + posBuff + negBuff;
-		if(IncludeSF) then
-			DKIDiseases_UpdateIconAndBar(81130, 3, true);
-		end
 	end
 	
 	-- Hungering Cold (which applied Frost Fever)
 	if(player == "player" and spell == GetSpellInfo(49203)) then
-		--inCombat = 1;
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[1] = apBase + posBuff + negBuff;
 		DKIDiseases_UpdateIconAndBar(59921, 1, true);
@@ -536,14 +546,17 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	
 	-- Howling Blast (which, if glyphed, would infect with Frost Fever)
 	if(player == "player" and spell == GetSpellInfo(49184)) then
+		local hbGlyph = false
 		for i = 1, 9 do
 			local enabled, _, _, glyphSpellID = GetGlyphSocketInfo(i);
 			if ( enabled and glyphSpellID == 63335) then
-				--inCombat = 1;
-				local apBase, posBuff, negBuff = UnitAttackPower("player");
-				ap[1] = apBase + posBuff + negBuff;
-				DKIDiseases_UpdateIconAndBar(59921, 1, true);
+				hbGlyph = true;
 			end
+		end
+		if(hbGlyph) then
+			local apBase, posBuff, negBuff = UnitAttackPower("player");
+			ap[1] = apBase + posBuff + negBuff;
+			DKIDiseases_UpdateIconAndBar(59921, 1, true);
 		end
 	end
 	
@@ -633,12 +646,12 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 		if(delta <= 0) then
 			demo0Time = nil;
 			for id=0, 3 do
-				DKIDiseases_Animate(id, 0, 4)
+				DKIDiseases_Animate(id, 0, speed, 4)
 			end
 		else
 			for id=0, 3 do
-				DKIDiseases_Animate(id, delta, 1)
-				DKIDiseases_Animate(id, 1, 4)
+				DKIDiseases_Animate(id, delta, speed, 1)
+				DKIDiseases_Animate(id, 1, speed, 4)
 			end
 		end
 	end
@@ -646,13 +659,13 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 	if(demo1Time) then
 		local delta =  ( (demo1Time + speed) - GetTime() ) / speed;
 		for id=0, 3 do
-			DKIDiseases_Animate(id, delta, 2)
-			DKIDiseases_Animate(id, 1, 5)
+			DKIDiseases_Animate(id, delta, speed, 2)
+			DKIDiseases_Animate(id, 1, speed, 5)
 		end
 		if(delta <= 0) then
 			demo1Time = nil;
 			for id=0, 3 do
-				DKIDiseases_Animate(id, 0, 5)
+				DKIDiseases_Animate(id, 0, speed, 5)
 			end
 		end
 	end
@@ -668,24 +681,26 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, forcePest)
    	local _, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
 	local apBase, posBuff, negBuff = UnitAttackPower("player");
 
-	if(duration and diseaseDuration ~= duration) then
-		diseaseDuration = duration;
+	if(not duration or duration > 60) then
+		duration = diseaseDuration;
 	end
-
+	if(debuff==81130)then
+		duration = 30;
+	end
 	--ChatFrame1:AddMessage("endtime: "..tostring(endTime).." isMine: "..tostring(endTime));
 	
 	if(endTime and isMine == "player") then
-		local delta =  ( endTime - GetTime() ) / diseaseDuration;
-		DKIDiseases_Animate(id, delta, 1)
+		local delta =  ( endTime - GetTime() ) / duration;
+		DKIDiseases_Animate(id, delta, duration, 1)
 
 		if(delta > 0) then
-			DKIDiseases_Animate(id, 1, 4)
+			DKIDiseases_Animate(id, 1, duration, 4)
 		else
-			DKIDiseases_Animate(id, 0, 4)
+			DKIDiseases_Animate(id, 0, duration, 4)
 		end
 		
 		if(pestTime) then
-			pest[id] = pestTime + diseaseDuration;
+			pest[id] = pestTime + duration;
 		end
 
 		if(ap[id]) then
@@ -697,32 +712,33 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, forcePest)
 			if (delta < 0.1) then
 				delta = 0.1
 			end
-			DKIDiseases_Animate(id, delta, 3)
+			DKIDiseases_Animate(id, delta, duration, 3)
 		end
 	else
-		DKIDiseases_Animate(id, 0, 1)
-		DKIDiseases_Animate(id, 0, 3)
-		DKIDiseases_Animate(id, 0, 4)
+		DKIDiseases_Animate(id, 0, duration, 1)
+		DKIDiseases_Animate(id, 0, duration, 3)
+		DKIDiseases_Animate(id, 0, duration, 4)
 	end
 
 	if(forcePest) then
-		pest[id] = GetTime() + diseaseDuration;
+		pest[id] = GetTime() + duration;
 	end
 
 	if(pest[id]) then
-		local delta =  ( pest[id] - GetTime() ) / diseaseDuration;
-		DKIDiseases_Animate(id, delta, 2)
-		DKIDiseases_Animate(id, 1, 5)
+--	ChatFrame1:AddMessage("pid:"..pest[id].."/time:"..GetTime().."/dur:"..diseaseDuration);
+		local delta =  ( pest[id] - GetTime() ) / duration;
+		DKIDiseases_Animate(id, delta, duration, 2)
+		DKIDiseases_Animate(id, 1, duration, 5)
 
 		if(delta <= 0) then
 			pest[id] = nil
-			DKIDiseases_Animate(id, 0, 5)
+			DKIDiseases_Animate(id, 0, duration, 5)
 		end
 	end	
 
 end
 
-function DKIDiseases_Animate(id, delta, track)
+function DKIDiseases_Animate(id, delta, duration, track)
 
 	diseaseIconTexture[id][0][0]:SetAlpha(1.0);
 	diseaseIconTexture[id][0][1]:SetAlpha(1.0);
@@ -760,7 +776,7 @@ function DKIDiseases_Animate(id, delta, track)
 	end
 
 	if(track == 1) then
-		local text = floor(delta*diseaseDuration+0.99);
+		local text = floor(delta*duration+0.99);
 		if(DKIDiseases_Saved.diseaseTimerLoc > 0 and text > 0 ) then
 			FixDKIDTimerLocation(2, DKIDiseases_Saved.diseaseTimerLoc);
 			diseaseIconFont[id][2]:SetText(text);
@@ -771,7 +787,7 @@ function DKIDiseases_Animate(id, delta, track)
 	end
 
 	if(track == 2) then
-		local text = floor(delta*diseaseDuration+0.99);
+		local text = floor(delta*duration+0.99);
 		if(DKIDiseases_Saved.pestilenceTimerLoc > 0 and text > 0 ) then
 			FixDKIDTimerLocation(3, DKIDiseases_Saved.pestilenceTimerLoc);
 			diseaseIconFont[id][3]:SetText(text);
@@ -842,9 +858,9 @@ function DKIDiseases_Reset()
 	DKIDiseases_Saved.barScale = 0.7;
 	DKIDiseases_Saved.barLength = 255;
 	DKIDiseases_Saved.barOffset = 12;
-	DKIDiseases_Saved.ringTrack = 5;
+	DKIDiseases_Saved.ringTrack = 2;
 	DKIDiseases_Saved.ringSil = 2;
-	DKIDiseases_Saved.iconTrack = 4;
+	DKIDiseases_Saved.iconTrack = 1;
 	DKIDiseases_Saved.iconSil = 2;
 	DKIDiseases_Saved.bladeTrack = 1;
 	DKIDiseases_Saved.bladeAlpha = 1;
@@ -857,7 +873,9 @@ function DKIDiseases_Reset()
 	DKIDiseases_Saved.strata = 1;
 	DKIDiseases_Saved.fade = false;
 	DKIDiseases_Saved.rotate = 0;
-
+	DKIDiseases_Saved.ep = true;
+	DKIDiseases_Saved.sf = true;
+	
 	for i=0, 3 do
 		diseaseIcon[i][0]:SetMovable(false)
 		diseaseIcon[i][0]:EnableMouse(false)
@@ -873,14 +891,14 @@ function DKIDiseases_Reset()
 
 --ChatFrame1:AddMessage("point:"..DKIDiseases_Saved.point[0].." rel:"..DKIDiseases_Saved.relativeTo[0].." par:"..DKIDiseases_Saved.parentPoint[0].." savedX:"..tostring(DKIDiseases_Saved.x[0]).." savedY:"..tostring(DKIDiseases_Saved.y[0]));
 
-	UIDropDownMenu_Initialize(getglobal("RingTrack"), RingTrack_Initialise)
-	UIDropDownMenu_Initialize(getglobal("RingTrackSil"), RingTrackSil_Initialise)
-	UIDropDownMenu_Initialize(getglobal("IconTrack"), IconTrack_Initialise)
-	UIDropDownMenu_Initialize(getglobal("IconTrackSil"), IconTrackSil_Initialise)
-	UIDropDownMenu_Initialize(getglobal("BladeTrack"), BladeTrack_Initialise)
-	UIDropDownMenu_Initialize(getglobal("BarTrack"), BarTrack_Initialise)
-	UIDropDownMenu_Initialize(getglobal("DKIDTimerLoc"), DKIDTimerLoc_Initialise)
-	UIDropDownMenu_Initialize(getglobal("DKIPTimerLoc"), DKIPTimerLoc_Initialise)
+	UIDropDownMenu_Initialize(_G["RingTrack"], RingTrack_Initialise)
+	UIDropDownMenu_Initialize(_G["RingTrackSil"], RingTrackSil_Initialise)
+	UIDropDownMenu_Initialize(_G["IconTrack"], IconTrack_Initialise)
+	UIDropDownMenu_Initialize(_G["IconTrackSil"], IconTrackSil_Initialise)
+	UIDropDownMenu_Initialize(_G["BladeTrack"], BladeTrack_Initialise)
+	UIDropDownMenu_Initialize(_G["BarTrack"], BarTrack_Initialise)
+	UIDropDownMenu_Initialize(_G["DKIDTimerLoc"], DKIDTimerLoc_Initialise)
+	UIDropDownMenu_Initialize(_G["DKIPTimerLoc"], DKIPTimerLoc_Initialise)
 
 	DKIDiseases_UpdateUI();
 

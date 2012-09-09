@@ -7,12 +7,12 @@ SLASH_DKIDISEASES1 = "/dkidiseases"
 SLASH_DKIDISEASES2 = "/dkid"
 
 function DKIDiseases_populateBlizzardOptions()
-
 	local frame = CreateFrame("frame", "DKIDiseases_BlizzardOptions", UIParent);
 	frame.name = "DKIDiseases";
 	frame:SetWidth(300);
 	frame:SetHeight(200);
 	frame:Show();
+	InterfaceOptions_AddCategory(frame);
 
 	local reset = CreateFrame("Button", "DKIDiseasesReset", frame, "OptionsButtonTemplate");
 	reset:SetText("Reset to Default")
@@ -23,7 +23,7 @@ function DKIDiseases_populateBlizzardOptions()
 	reset:SetPoint("TOPLEFT", 10, -20)
 
 	local lock = CreateFrame("CheckButton", "DKIDiseasesFrameLock", frame, "OptionsCheckButtonTemplate");
-	getglobal(lock:GetName().."Text"):SetText("Unlock Diseases");
+	_G[lock:GetName().."Text"]:SetText("Unlock Diseases");
 	lock:SetScript('OnShow', function(self) self:SetChecked(diseaseIcon[0][0]:IsMouseEnabled()) end)
 	lock:SetScript('OnClick', function(self) DKIDiseases_Lock(self:GetChecked()) end)
 	lock:SetPoint('LEFT', reset, 'RIGHT', 15, -2)
@@ -45,8 +45,8 @@ function DKIDiseases_populateBlizzardOptions()
 	strata:SetMinMaxValues(1,8)
 	strata:SetValueStep(1)
 	strata:SetWidth(30)
-	getglobal('DKIDStrataSliderLow'):SetText("0")
-	getglobal('DKIDStrataSliderHigh'):SetText("4")
+	_G['DKIDStrataSliderLow']:SetText("0")
+	_G['DKIDStrataSliderHigh']:SetText("4")
 	strata:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.strata) end)
 	strata:SetScript('OnValueChanged', DKIDStrataSlider_ValueChanged)
 	strata:SetPoint('LEFT', DKIDStrataTitleString, 'RIGHT', 10, 0)
@@ -57,7 +57,7 @@ function DKIDiseases_populateBlizzardOptions()
 --]]
 
 	local fade = CreateFrame("CheckButton", "DKIDAgroFade", frame, "OptionsCheckButtonTemplate");
-	getglobal(fade:GetName().."Text"):SetText("Fade out of Combat");
+	_G[fade:GetName().."Text"]:SetText("Fade out of Combat");
 	fade:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.fade) end)
 	fade:SetScript('OnClick', function(self) DKIDiseases_Saved.fade = self:GetChecked() end)
 	fade:SetPoint('TOPLEFT', reset, 'BOTTOMLEFT', 0, -10)
@@ -78,9 +78,25 @@ function DKIDiseases_populateBlizzardOptions()
 	demo1:GetFontString():SetPoint("TOP", demo1, "TOP", 0, -6)
 	demo1:SetPoint('LEFT', demo0, 'RIGHT', 0, 0)
 
+	local optTitle = frame:CreateFontString("optTitleString","ARTWORK","GameTooltipHeaderText");
+	optTitle:SetText("Optional Tracking")
+	optTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -40)
+
+	local epCheck = CreateFrame("CheckButton", "EPCheck", frame, "OptionsCheckButtonTemplate");
+	_G[epCheck:GetName().."Text"]:SetText("Ebon Plague");
+	epCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.ep) end)
+	epCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.ep = self:GetChecked();DKIDiseases_Talents_Check(); end)
+	epCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
+
+	local sfCheck = CreateFrame("CheckButton", "SFCheck", frame, "OptionsCheckButtonTemplate");
+	_G[sfCheck:GetName().."Text"]:SetText("Scarlet Fever");
+	sfCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.sf) end)
+	sfCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.sf = self:GetChecked();DKIDiseases_Talents_Check() end)
+	sfCheck:SetPoint('LEFT', epCheck, 'RIGHT', 120, 0)
+
 	local ringTitle = frame:CreateFontString("ringTitleString","ARTWORK","GameTooltipHeaderText");
 	ringTitle:SetText("Disease Rings and Icons")
-	ringTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -40)
+	ringTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -90)
 
 	local iconScaleTitle = frame:CreateFontString("IconScaleTitleString","ARTWORK","GameFontNormal");
 	iconScaleTitle:SetText("Scale")
@@ -90,8 +106,8 @@ function DKIDiseases_populateBlizzardOptions()
 	iconScale:SetMinMaxValues(0.2, 2.0)
 	iconScale:SetValueStep(0.05)
 	iconScale:SetWidth(60)
-	getglobal('IconScaleSliderLow'):SetText("small")
-	getglobal('IconScaleSliderHigh'):SetText("large")
+	_G['IconScaleSliderLow']:SetText("small")
+	_G['IconScaleSliderHigh']:SetText("large")
 	iconScale:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.iconScale) end)
 	iconScale:SetScript('OnValueChanged', IconScaleSlider_ValueChanged)
 	iconScale:SetPoint('LEFT', IconScaleTitleString, 'RIGHT', 10, 0)
@@ -140,8 +156,8 @@ function DKIDiseases_populateBlizzardOptions()
 	barScale:SetMinMaxValues(0.2, 2.0)
 	barScale:SetValueStep(0.05)
 	barScale:SetWidth(60)
-	getglobal('BarScaleSliderLow'):SetText("small")
-	getglobal('BarScaleSliderHigh'):SetText("large")
+	_G['BarScaleSliderLow']:SetText("small")
+	_G['BarScaleSliderHigh']:SetText("large")
 	barScale:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.barScale) end)
 	barScale:SetScript('OnValueChanged', BarScaleSlider_ValueChanged)
 	barScale:SetPoint('LEFT', BarScaleTitleString, 'RIGHT', 10, 0)
@@ -154,8 +170,8 @@ function DKIDiseases_populateBlizzardOptions()
 	barLength:SetMinMaxValues(30, 255)
 	barLength:SetValueStep(5)
 	barLength:SetWidth(60)
-	getglobal('BarLengthSliderLow'):SetText("short")
-	getglobal('BarLengthSliderHigh'):SetText("long")
+	_G['BarLengthSliderLow']:SetText("short")
+	_G['BarLengthSliderHigh']:SetText("long")
 	barLength:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.barLength) end)
 	barLength:SetScript('OnValueChanged', BarLengthSlider_ValueChanged)
 	barLength:SetPoint('LEFT', BarScaleSlider, 'RIGHT', 75, 0)
@@ -168,8 +184,8 @@ function DKIDiseases_populateBlizzardOptions()
 	barOffset:SetMinMaxValues(0, 60)
 	barOffset:SetValueStep(1)
 	barOffset:SetWidth(60)
-	getglobal('BarOffsetSliderLow'):SetText("center")
-	getglobal('BarOffsetSliderHigh'):SetText("away")
+	_G['BarOffsetSliderLow']:SetText("center")
+	_G['BarOffsetSliderHigh']:SetText("away")
 	barOffset:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.barOffset) end)
 	barOffset:SetScript('OnValueChanged', BarOffsetSlider_ValueChanged)
 	barOffset:SetPoint('LEFT', BarLengthSlider, 'RIGHT', 70, 0)
@@ -190,8 +206,8 @@ function DKIDiseases_populateBlizzardOptions()
 	bladeAlpha:SetMinMaxValues(0.1, 1.0)
 	bladeAlpha:SetValueStep(0.1)
 	bladeAlpha:SetWidth(60)
-	getglobal('BladeAlphaSliderLow'):SetText("faded")
-	getglobal('BladeAlphaSliderHigh'):SetText("solid")
+	_G['BladeAlphaSliderLow']:SetText("faded")
+	_G['BladeAlphaSliderHigh']:SetText("solid")
 	bladeAlpha:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.bladeAlpha) end)
 	bladeAlpha:SetScript('OnValueChanged', BladeAlphaSlider_ValueChanged)
 	bladeAlpha:SetPoint('LEFT', BladeAlphaTitleString, 'RIGHT', 10, 0)
@@ -212,61 +228,68 @@ function DKIDiseases_populateBlizzardOptions()
 	barAlpha:SetMinMaxValues(0.1, 1.0)
 	barAlpha:SetValueStep(0.1)
 	barAlpha:SetWidth(60)
-	getglobal('BarAlphaSliderLow'):SetText("faded")
-	getglobal('BarAlphaSliderHigh'):SetText("solid")
+	_G['BarAlphaSliderLow']:SetText("faded")
+	_G['BarAlphaSliderHigh']:SetText("solid")
 	barAlpha:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.barAlpha) end)
 	barAlpha:SetScript('OnValueChanged', BarAlphaSlider_ValueChanged)
 	barAlpha:SetPoint('LEFT', BarAlphaTitleString, 'RIGHT', 10, 0)
 
-	local timerTitle = frame:CreateFontString("timerTitleString","ARTWORK","GameTooltipHeaderText");
-	timerTitle:SetText("Disease Timers")
-	timerTitle:SetPoint('TOPLEFT', barTrackTitleString, 'BOTTOMLEFT', 0, -15)
+	-- Timer Child Menu
+	local timerFrame = CreateFrame("frame", "DKIDiseases_RuneOptions", frame);
+	timerFrame.parent = "DKIDiseases";
+	timerFrame.name = "Disease Timers";
+	timerFrame:SetWidth(300);
+	timerFrame:SetHeight(200);
+	timerFrame:Hide();
+	InterfaceOptions_AddCategory(timerFrame);
 
-	local diseaseTimerLocTitle = frame:CreateFontString("diseaseTimerLocTitleString","ARTWORK","GameFontNormal");
+	local timerTitle = timerFrame:CreateFontString("timerTitleString","ARTWORK","GameTooltipHeaderText");
+	timerTitle:SetText("Disease Timers")
+	timerTitle:SetPoint('TOPLEFT', 10, -20)
+
+	local diseaseTimerLocTitle = timerFrame:CreateFontString("diseaseTimerLocTitleString","ARTWORK","GameFontNormal");
 	diseaseTimerLocTitle:SetText("Disease")
 	diseaseTimerLocTitle:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 20, -12)
 
-	diseaseTimerLoc = CreateFrame("Frame", "DKIDTimerLoc", frame, "UIDropDownMenuTemplate"); 
+	diseaseTimerLoc = CreateFrame("Frame", "DKIDTimerLoc", timerFrame, "UIDropDownMenuTemplate"); 
 	diseaseTimerLoc:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 61, -5)
 	UIDropDownMenu_Initialize(diseaseTimerLoc, DKIDTimerLoc_Initialise)
 
-	local timerScaleSliderTitle = frame:CreateFontString("TimerScaleSliderString","ARTWORK","GameFontNormal");
+	local timerScaleSliderTitle = timerFrame:CreateFontString("TimerScaleSliderString","ARTWORK","GameFontNormal");
 	timerScaleSliderTitle:SetText("Timer Scale")
 	timerScaleSliderTitle:SetPoint('LEFT', diseaseTimerLocTitleString, 'RIGHT', 170, 0)
 
-	local timerScaleSlider = CreateFrame("Slider", "TimerScaleSlider", frame, "OptionsSliderTemplate")
+	local timerScaleSlider = CreateFrame("Slider", "TimerScaleSlider", timerFrame, "OptionsSliderTemplate")
 	timerScaleSlider:SetMinMaxValues(0.2, 3.0)
 	timerScaleSlider:SetValueStep(0.05)
 	timerScaleSlider:SetWidth(60)
-	getglobal('TimerScaleSliderLow'):SetText("small")
-	getglobal('TimerScaleSliderHigh'):SetText("large")
+	_G['TimerScaleSliderLow']:SetText("small")
+	_G['TimerScaleSliderHigh']:SetText("large")
 	timerScaleSlider:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.timerScale) end)
 	timerScaleSlider:SetScript('OnValueChanged', TimerScaleSlider_ValueChanged)
 	timerScaleSlider:SetPoint('LEFT', TimerScaleSliderString, 'RIGHT', 10, 0)
 
-	local pestilenceTimerLocTitle = frame:CreateFontString("pestilenceTimerLocTitle","ARTWORK","GameFontNormal");
+	local pestilenceTimerLocTitle = timerFrame:CreateFontString("pestilenceTimerLocTitle","ARTWORK","GameFontNormal");
 	pestilenceTimerLocTitle:SetText("Pestilence")
 	pestilenceTimerLocTitle:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 4, -41)
 
-	pestilenceTimerLoc = CreateFrame("Frame", "DKIPTimerLoc", frame, "UIDropDownMenuTemplate"); 
+	pestilenceTimerLoc = CreateFrame("Frame", "DKIPTimerLoc", timerFrame, "UIDropDownMenuTemplate"); 
 	pestilenceTimerLoc:SetPoint('LEFT', pestilenceTimerLocTitle, 'RIGHT', -7, -3)
 	UIDropDownMenu_Initialize(pestilenceTimerLoc, DKIPTimerLoc_Initialise)
 
-	local timerOffsetSliderTitle = frame:CreateFontString("TimerOffsetSliderString","ARTWORK","GameFontNormal");
+	local timerOffsetSliderTitle = timerFrame:CreateFontString("TimerOffsetSliderString","ARTWORK","GameFontNormal");
 	timerOffsetSliderTitle:SetText("Timer Offset")
 	timerOffsetSliderTitle:SetPoint('TOPLEFT', timerScaleSliderTitle, 'BOTTOMLEFT', -5, -20)
 
-	local timerOffsetSlider = CreateFrame("Slider", "TimerOffsetSlider", frame, "OptionsSliderTemplate")
+	local timerOffsetSlider = CreateFrame("Slider", "TimerOffsetSlider", timerFrame, "OptionsSliderTemplate")
 	timerOffsetSlider:SetMinMaxValues(-30, 30)
 	timerOffsetSlider:SetValueStep(1)
 	timerOffsetSlider:SetWidth(60)
-	getglobal('TimerOffsetSliderLow'):SetText("small")
-	getglobal('TimerOffsetSliderHigh'):SetText("large")
+	_G['TimerOffsetSliderLow']:SetText("small")
+	_G['TimerOffsetSliderHigh']:SetText("large")
 	timerOffsetSlider:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.timerOffset) end)
 	timerOffsetSlider:SetScript('OnValueChanged', TimerOffsetSlider_ValueChanged)
 	timerOffsetSlider:SetPoint('LEFT', TimerOffsetSliderString, 'RIGHT', 10, 0)
-
-	InterfaceOptions_AddCategory(frame);
 
 	DKIDiseases_ConfigChange();
 end
