@@ -1,5 +1,5 @@
-## Interface: 30300
-## Title: DeathKnight.info Diseases
+## Interface: 40000
+## Title: DKIDiseases
 ## Notes: Disease display based on the contest and community feedback of DeathKnight.info
 ##
 ##	  Special thanks to the following DKi members:

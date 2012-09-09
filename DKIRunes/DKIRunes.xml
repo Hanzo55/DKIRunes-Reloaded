@@ -177,13 +177,13 @@
 </Frames>
 	<Scripts>
 		<OnLoad>
-			DKIRunes_OnLoad(this);
+			DKIRunes_OnLoad(self);
 		</OnLoad>
 		<OnEvent>
-			DKIRunes_OnEvent(this);
+			DKIRunes_OnEvent(self);
 		</OnEvent>
 		<OnUpdate>
-			DKIRunes_OnUpdate(this, arg1);
+			DKIRunes_OnUpdate(self, arg1);
 		</OnUpdate>
 	</Scripts>
 </Frame>

@@ -1,5 +1,5 @@
-## Interface: 30300
-## Title: DeathKnight.info Runes
+## Interface: 40000
+## Title: DKIRunes
 ## Notes: Rune display based on the contest and community feedback of DeathKnight.info
 ##		http://deathknight.info/
 ##	  Initial coding framework derived from EbonBlade 2.4.3

@@ -95,7 +95,12 @@ end
 
 function DKIRunes_OnLoad(self)
 	
-	RuneFrame:Hide();
+	RuneButtonIndividual1:Hide();
+	RuneButtonIndividual2:Hide();
+	RuneButtonIndividual3:Hide();
+	RuneButtonIndividual4:Hide();
+	RuneButtonIndividual5:Hide();
+	RuneButtonIndividual6:Hide();
 	
 	-- Disable rune frame if not a death knight.
 	local _, class = UnitClass("player");
@@ -118,11 +123,6 @@ function DKIRunes_OnLoad(self)
 	self:SetScript("OnEvent", DKIRunes_OnEvent);
 	
 	self.runes = {};
-
-	DKIRunesFrame:SetMovable(false)
-	DKIRunesFrame:EnableMouse(false)
-	DKIRunesFrame:SetScript("OnMouseDown",function() DKIRunesFrame:StartMoving(); end)
-	DKIRunesFrame:SetScript("OnMouseUp",function() DKIRunesFrame:StopMovingOrSizing() end)
 
 end
 
@@ -160,6 +160,10 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunes_populateBlizzardOptions();
 		DKIRunesFrame:SetAlpha(0.3);
 		DKIRunes_inCombat2 = 0;
+	
+		DKIRunesFrame:EnableMouse(false)
+--		DKIRunesFrame:SetScript("OnMouseDown",function() DKIRunesFrame:StartMoving(); end)
+--		DKIRunesFrame:SetScript("OnMouseUp",function() DKIRunesFrame:StopMovingOrSizing() end)
 
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
@@ -317,7 +321,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 		if (DKIRunes_Saved.animate) then
 			rawFrame = math.floor( percent * animationStart);
 			if ( rawFrame > animationStart ) then 
-				rawFrame = animationStart;
+				rawFrame = animationStart - 2;
 			end
 		else	
 			rawFrame = animationStart - 2;

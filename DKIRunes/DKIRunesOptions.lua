@@ -189,81 +189,81 @@ function DKIRunes_Lock(checked)
 end
 
 
-function Graphics_Initialise()
-	level = level or 1
+function Graphics_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "none"; 
 	info.value = 0; 
-	info.func = function() Graphics_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = Graphics_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.artStyle == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Ebon Blade"; 
 	info.value = 1; 
-	info.func = function() Graphics_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = Graphics_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.artStyle == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Simple Box"; 
 	info.value = 2; 
-	info.func = function() Graphics_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = Graphics_OnClick;
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.artStyle == 2); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RuneFrameGraphics, DKIRunes_Saved.artStyle)
 end
 
-function Graphics_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIRunes_Saved.artStyle = this.value;
+function Graphics_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIRunes_Saved.artStyle = self.value;
 	DKIRunes_UpdateUI();
 end
 
-function RunicBar0_Initialise()
-	level = level or 1
+function RunicBar0_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "none"; 
 	info.value = 0; 
-	info.func = function() RunicBar0_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar0_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar0 == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Runic Power"; 
 	info.value = 1; 
-	info.func = function() RunicBar0_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar0_OnClick 
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar0 == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Health Points"; 
 	info.value = 2; 
-	info.func = function() RunicBar0_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar0_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar0 == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Anti-Health Points"; 
 	info.value = 3; 
-	info.func = function() RunicBar0_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar0_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar0 == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RunicBar0, DKIRunes_Saved.bar0)
 end
 
-function RunicBar0_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIRunes_Saved.bar0 = this.value;
-	RunicBar0_Set(this.value)
+function RunicBar0_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIRunes_Saved.bar0 = self.value;
+	RunicBar0_Set(self.value)
 	DKIRunes_UpdateUI();
 end
 
@@ -282,46 +282,46 @@ function RunicBar0_Set(bar)
 	end
 end
 
-function RunicBar1_Initialise()
-	level = level or 1
+function RunicBar1_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "none"; 
 	info.value = 0; 
-	info.func = function() RunicBar1_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar1_OnClick
+	info.owner = self; 
 	info.checked = (DKIRunes_Saved.bar1 == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Runic Power"; 
 	info.value = 1; 
-	info.func = function() RunicBar1_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar1_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar1 == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Health Points"; 
-	info.value = 2; 
-	info.func = function() RunicBar1_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.value = 2;
+	info.func = RunicBar1_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar1 == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Anti-Health Points"; 
 	info.value = 3; 
-	info.func = function() RunicBar1_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RunicBar1_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.bar1 == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RunicBar1, DKIRunes_Saved.bar1)
 end
 
-function RunicBar1_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIRunes_Saved.bar1 = this.value;
-	RunicBar1_Set(this.value)
+function RunicBar1_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIRunes_Saved.bar1 = self.value;
+	RunicBar1_Set(self.value)
 	DKIRunes_UpdateUI();
 end
 
@@ -340,31 +340,31 @@ function RunicBar1_Set(bar)
 	end
 end
 
-function HeroOrigin_Initialise()
-	level = level or 1
+function HeroOrigin_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "Port"; 
 	info.value = -1; 
-	info.func = function() HeroOrigin_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = HeroOrigin_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.heroOrigin == -1); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Starboard"; 
 	info.value = 1; 
-	info.func = function() HeroOrigin_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = HeroOrigin_OnClick
+	info.owner = self;
 	info.checked = (DKIRunes_Saved.heroOrigin == 1); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(HeroOrigin, DKIRunes_Saved.heroOrigin)
 end
 
-function HeroOrigin_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIRunes_Saved.heroOrigin = this.value;
+function HeroOrigin_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIRunes_Saved.heroOrigin = self.value;
 	DKIRunes_UpdateUI();
 end
 

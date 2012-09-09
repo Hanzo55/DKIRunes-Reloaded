@@ -279,7 +279,7 @@ end
 
 function DKIDiseases_Lock(checked)
 	local relativeTo;
-	for i=0, 2 do
+	for i=0, 3 do
 		diseaseIcon[i][0]:SetMovable(checked)
 		diseaseIcon[i][0]:EnableMouse(checked)
 	end
@@ -318,199 +318,227 @@ function BarOffsetSlider_ValueChanged(self, value)
 	DKIDiseases_UpdateUI();
 end
 
-function RingTrack_Initialise()
+function RingTrack_Initialise(self)
 	level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "nothing"; 
 	info.value = 0; 
-	info.func = function() RingTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.ringTrack == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Diseases"; 
 	info.value = 1; 
-	info.func = function() RingTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.ringTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Pestilence"; 
 	info.value = 2; 
-	info.func = function() RingTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrack_OnClick
+	info.owner = self 
 	info.checked = (DKIDiseases_Saved.ringTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "DoT Attack Power"; 
 	info.value = 3; 
-	info.func = function() RingTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.ringTrack == 3); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Disease Active"; 
+	info.value = 4; 
+	info.func = RingTrack_OnClick
+	info.owner = self
+	info.checked = (DKIDiseases_Saved.ringTrack == 4); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Pestilence Active"; 
+	info.value = 5; 
+	info.func = RingTrack_OnClick
+	info.owner = self
+	info.checked = (DKIDiseases_Saved.ringTrack == 5); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RingTrack, DKIDiseases_Saved.ringTrack)
 end
 
-function RingTrack_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.ringTrack = this.value;
+function RingTrack_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.ringTrack = self.value;
 	DKIDiseases_UpdateUI();
 end
 
-function RingTrackSil_Initialise()
-	level = level or 1
+function RingTrackSil_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "never"; 
 	info.value = 0; 
-	info.func = function() RingTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrackSil_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.ringSil == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "While Tracking"; 
 	info.value = 1; 
-	info.func = function() RingTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrackSil_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.ringSil == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Always"; 
 	info.value = 2; 
-	info.func = function() RingTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = RingTrackSil_OnClick
+	info.owner = self 
 	info.checked = (DKIDiseases_Saved.ringSil == 2); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(RingTrackSil, DKIDiseases_Saved.ringSil)
 end
 
-function RingTrackSil_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.ringSil = this.value;
+function RingTrackSil_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.ringSil = self.value;
 	DKIDiseases_UpdateUI();
 end
 
-function IconTrack_Initialise()
-	level = level or 1
+function IconTrack_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "nothing"; 
 	info.value = 0; 
-	info.func = function() IconTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconTrack == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Diseases"; 
 	info.value = 1; 
-	info.func = function() IconTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Pestilence"; 
 	info.value = 2; 
-	info.func = function() IconTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "DoT Attack Power"; 
 	info.value = 3; 
-	info.func = function() IconTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrack_OnClick 
+	info.owner = self 
 	info.checked = (DKIDiseases_Saved.iconTrack == 3); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Disease Active"; 
+	info.value = 4; 
+	info.func = IconTrack_OnClick
+	info.owner = self
+	info.checked = (DKIDiseases_Saved.iconTrack == 4); 
+	UIDropDownMenu_AddButton(info, level);
+	 
+	info.text = "Pestilence Active"; 
+	info.value = 5; 
+	info.func = IconTrack_OnClick
+	info.owner = self
+	info.checked = (DKIDiseases_Saved.iconTrack == 5); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(IconTrack, DKIDiseases_Saved.iconTrack)
 end
 
-function IconTrack_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.iconTrack = this.value;
+function IconTrack_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.iconTrack = self.value;
 	DKIDiseases_UpdateUI();
 end
 
-function IconTrackSil_Initialise()
-	level = level or 1
+function IconTrackSil_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "never"; 
 	info.value = 0; 
-	info.func = function() IconTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrackSil_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconSil == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "While Tracking"; 
 	info.value = 1; 
-	info.func = function() IconTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrackSil_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconSil == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Always"; 
 	info.value = 2; 
-	info.func = function() IconTrackSil_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = IconTrackSil_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.iconSil == 2); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(IconTrackSil, DKIDiseases_Saved.iconSil)
 end
 
-function IconTrackSil_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.iconSil = this.value;
+function IconTrackSil_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.iconSil = self.value;
 	DKIDiseases_UpdateUI();
 end
 
-function BladeTrack_Initialise()
-	level = level or 1
+function BladeTrack_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "nothing"; 
 	info.value = 0; 
-	info.func = function() BladeTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BladeTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.bladeTrack == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Diseases"; 
 	info.value = 1; 
-	info.func = function() BladeTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BladeTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.bladeTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Pestilence"; 
 	info.value = 2; 
-	info.func = function() BladeTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BladeTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.bladeTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "DoT Attack Power"; 
 	info.value = 3; 
-	info.func = function() BladeTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BladeTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.bladeTrack == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(BladeTrack, DKIDiseases_Saved.bladeTrack)
 end
 
-function BladeTrack_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.bladeTrack = this.value;
+function BladeTrack_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.bladeTrack = self.value;
 	DKIDiseases_UpdateUI();
 end
 
@@ -519,45 +547,45 @@ function BladeAlphaSlider_ValueChanged(self, value)
 	DKIDiseases_UpdateUI();
 end
 
-function BarTrack_Initialise()
-	level = level or 1
+function BarTrack_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "nothing"; 
 	info.value = 0; 
-	info.func = function() BarTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BarTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.barTrack == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Diseases"; 
 	info.value = 1; 
-	info.func = function() BarTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BarTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.barTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Pestilence"; 
 	info.value = 2; 
-	info.func = function() BarTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BarTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.barTrack == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "DoT Attack Power"; 
 	info.value = 3; 
-	info.func = function() BarTrack_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = BarTrack_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.barTrack == 3); 
 	UIDropDownMenu_AddButton(info, level);
 
 	UIDropDownMenu_SetSelectedValue(BarTrack, DKIDiseases_Saved.barTrack)
 end
 
-function BarTrack_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.barTrack = this.value;
+function BarTrack_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.barTrack = self.value;
 	DKIDiseases_UpdateUI();
 end
 
@@ -566,50 +594,50 @@ function BarAlphaSlider_ValueChanged(self, value)
 	DKIDiseases_UpdateUI();
 end
 
-function DKIDTimerLoc_Initialise()
-	level = level or 1
+function DKIDTimerLoc_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "none"; 
 	info.value = 0; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Center"; 
 	info.value = 1; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Above"; 
 	info.value = 2; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Right"; 
 	info.value = 3; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 3); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Below"; 
 	info.value = 4; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 4); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Left"; 
 	info.value = 5; 
-	info.func = function() DKIDTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIDTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.diseaseTimerLoc == 5); 
 	UIDropDownMenu_AddButton(info, level);
 
@@ -617,56 +645,56 @@ function DKIDTimerLoc_Initialise()
 	FixDKIDTimerLocation(2, DKIDiseases_Saved.diseaseTimerLoc);
 end
 
-function DKIDTimerLoc_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.diseaseTimerLoc = this.value;
+function DKIDTimerLoc_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.diseaseTimerLoc = self.value;
 	FixDKIDTimerLocation(2, DKIDiseases_Saved.diseaseTimerLoc);
 end
 
-function DKIPTimerLoc_Initialise()
-	level = level or 1
+function DKIPTimerLoc_Initialise(self)
+	local level = level or 1
 	 
 	local info = UIDropDownMenu_CreateInfo();
 	 
 	info.text = "none"; 
 	info.value = 0; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 0); 
 	UIDropDownMenu_AddButton(info, level); 
 	 
 	info.text = "Center"; 
 	info.value = 1; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Above"; 
 	info.value = 2; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 2); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Right"; 
 	info.value = 3; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 3); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Below"; 
 	info.value = 4; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner = self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 4); 
 	UIDropDownMenu_AddButton(info, level);
 	 
 	info.text = "Left"; 
 	info.value = 5; 
-	info.func = function() DKIPTimerLoc_OnClick() end; 
-	info.owner = this:GetParent(); 
+	info.func = DKIPTimerLoc_OnClick
+	info.owner =self
 	info.checked = (DKIDiseases_Saved.pestilenceTimerLoc == 5); 
 	UIDropDownMenu_AddButton(info, level);
 
@@ -674,9 +702,9 @@ function DKIPTimerLoc_Initialise()
 	FixDKIDTimerLocation(3, DKIDiseases_Saved.pestilenceTimerLoc);
 end
 
-function DKIPTimerLoc_OnClick()
-	UIDropDownMenu_SetSelectedValue(this.owner, this.value);
-	DKIDiseases_Saved.pestilenceTimerLoc = this.value;
+function DKIPTimerLoc_OnClick(self)
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value);
+	DKIDiseases_Saved.pestilenceTimerLoc = self.value;
 	FixDKIDTimerLocation(3, DKIDiseases_Saved.pestilenceTimerLoc);
 end
 
