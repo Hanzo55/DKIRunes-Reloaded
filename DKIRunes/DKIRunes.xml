@@ -17,21 +17,21 @@
 				  </Anchor>
 				</Anchors>
 			</Cooldown>
-			<Frame name="$parentBorder">
-				<Size x="28" y="28"/>
-				<Anchors>
-					<Anchor point="CENTER">
-						<Offset x="0" y="0"/>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="BORDER">
-						<Texture name="$parentTexture">
-							<Color r="0" g="0" b="0" a="0"/>
-						</Texture>
-					</Layer>
-				</Layers>
-			</Frame>
+					<Frame name="$parentBorder">
+			<Size x="28" y="28"/>
+			<Anchors>
+				<Anchor point="CENTER">
+					<Offset x="0" y="0"/>
+				</Anchor>
+			</Anchors>
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture name="$parentTexture">
+						<Color r="0" g="0" b="0" a="0"/>
+					</Texture>
+				</Layer>
+			</Layers>
+		</Frame>
 		</Frames>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -39,31 +39,12 @@
 					<Color r="0" g="1" b="0" a="0.0" />
 				</Texture>
 			</Layer>
-			<Layer level="ARTWORK" textureSublevel = "-2">
-				<Texture name="$parentRuneEmpower" file="Interface\AddOns\DKIRunes\empower" alpha="0">
-					<Size x="64" y="64"/>
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-        	<Layer level="ARTWORK" textureSublevel = "-1">
+        		<Layer>
 				<Texture name="$parentRune" file="Interface\AddOns\DKIRunes\Blood_Runes">
 		        	        <Size x="32" y="32"/>
 				</Texture>
 			</Layer>
-		</Layers>	
-		<Animations>
-			<AnimationGroup parentKey="energize">
-				<Alpha target="$parentRuneEmpower" startDelay="0" endDelay="0.3" change="0.8" duration="0.1" order="1" smoothing="IN_OUT"/>
-				<Rotation target="$parentRuneEmpower" degrees="360" startDelay="0" endDelay="1" duration="1" smoothing="OUT" order="1">
-					<Origin point="CENTER">
-						<Offset x="0" y="0"/>
-					</Origin>
-				</Rotation>
-				<Alpha target="$parentRuneEmpower" change="-1.0" duration="2" order="2" smoothing="OUT"/>
-			</AnimationGroup>
-		</Animations>		
+		</Layers>		
 	</Frame>
 		
 <!-- Background -->
@@ -170,36 +151,10 @@
             <BackgroundInsets>
                <AbsInset left="5" right="5" top="5" bottom="5"/>
             </BackgroundInsets>
-       </Backdrop>
-	<Layers>
-     	<Layer level="BORDER">
-           <Texture name="Horizontal_Bar_0">
-				<Size x="150" y="16"/>
-        		<Anchors>
-                     <Anchor point="BOTTOMLEFT" relativePoint="CENTER">
-						<Offset>
-						  <AbsDimension x="-75" y="0"/>
-						</Offset>
-					</Anchor>
-                </Anchors>
-            </Texture>
-		</Layer>
-     	<Layer level="BORDER">
-           <Texture name="Horizontal_Bar_1">
-				<Size x="150" y="16"/>
-        		<Anchors>
-                     <Anchor point="TOPLEFT" relativePoint="CENTER">
-						<Offset>
-						  <AbsDimension x="-75" y="0"/>
-						</Offset>
-					</Anchor>
-                </Anchors>
-            </Texture>
-		</Layer>
-	</Layers>
+         </Backdrop>
  </Frame>	
   <Frame name="DKIRunesVerticalBackdrop" setAllPoints="true" hidden="true">
-	<Size x="40" y="160"/> 
+	  <Size x="40" y="160"/> 
 	<Anchors>
 		<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
 			<Offset>
@@ -207,7 +162,7 @@
 			</Offset>
 		</Anchor>
 	</Anchors>	  
-	<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+	  <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
             <EdgeSize>
                <AbsValue val="16"/>
             </EdgeSize>
@@ -217,33 +172,7 @@
             <BackgroundInsets>
                <AbsInset left="5" right="5" top="5" bottom="5"/>
             </BackgroundInsets>
-    </Backdrop>
-	<Layers>
-     	<Layer level="BORDER">
-           <Texture name="Vertical_Bar_0">
-				<Size x="16" y="150"/>
-        		<Anchors>
-                     <Anchor point="BOTTOMRIGHT" relativePoint="CENTER">
-						<Offset>
-						  <AbsDimension x="0" y="-75"/>
-						</Offset>
-					</Anchor>
-                </Anchors>
-            </Texture>
-		</Layer>
-     	<Layer level="BORDER">
-           <Texture name="Vertical_Bar_1">
-				<Size x="16" y="150"/>
-        		<Anchors>
-                     <Anchor point="BOTTOMLEFT" relativePoint="CENTER">
-						<Offset>
-						  <AbsDimension x="0" y="-75"/>
-						</Offset>
-					</Anchor>
-                </Anchors>
-            </Texture>
-		</Layer>
-	</Layers>
+         </Backdrop>
  </Frame>	
 </Frames>
 	<Scripts>
