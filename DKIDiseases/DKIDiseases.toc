@@ -1,0 +1,8 @@
+## Interface: 30000
+## Title: DeathKnight.info Diseases
+## Notes: Disease display based on the contest and community feedback of DeathKnight.info
+##
+## SavedVariables: DKIDiseases_Saved
+
+DKIDiseases.lua
+DKIDiseasesOptions.lua
