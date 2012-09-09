@@ -1,6 +1,10 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: DeathKnight.info Diseases
 ## Notes: Disease display based on the contest and community feedback of DeathKnight.info
+##
+##	  Special thanks to the following DKi members:
+##		zeke, Nat, Oblatio, Oppietoppie, Accident, Evare, Gallatea, Goldknight, Carow, shisoka
+##		...and of course, Stress, for bringing us all together
 ##
 ## SavedVariables: DKIDiseases_Saved
 

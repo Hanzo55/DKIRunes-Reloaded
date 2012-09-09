@@ -1,4 +1,4 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: DeathKnight.info Runes
 ## Notes: Rune display based on the contest and community feedback of DeathKnight.info
 ##		http://deathknight.info/

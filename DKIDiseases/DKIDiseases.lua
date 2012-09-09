@@ -423,6 +423,16 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
  		DKIDiseases_UpdateIconsAndBars();
 		pestTime = nil;
 	end
+	if(player == "player" and spell == GetSpellInfo(51411)) then
+		for i = 1, 6 do
+			local enabled, _, glyphSpellID, _ = GetGlyphSocketInfo(i);
+			if ( enabled and glyphSpellID == 63335) then
+				pestTime = GetTime();
+				DKIDiseases_UpdateIconAndBar(59921, 1, true);
+				pestTime = nil;
+			end
+		end
+	end
 end
 
 function GetSpellID(spell)
@@ -513,7 +523,10 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 end
 
 function DKIDiseases_UpdateIconAndBar(debuff, id)
+	DKIDiseases_UpdateIconAndBar(debuff, id, false)
+end
 
+function DKIDiseases_UpdateIconAndBar(debuff, id, force)
  	local i = GetSpellInfo(debuff);
    	local _, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
 
@@ -521,7 +534,7 @@ function DKIDiseases_UpdateIconAndBar(debuff, id)
 		diseaseDuration = duration;
 	end
 
-	if(endTime and (isMine == 1 or isMine == "player")) then
+	if(endTime and (isMine == 1 or isMine == "player") or force) then
 		local delta =  ( endTime - GetTime() ) / diseaseDuration;
 		DKIDiseases_Animate(id, delta, 1)
 
@@ -545,7 +558,11 @@ end
 
 function DKIDiseases_Animate(id, delta, track)
 	diseaseIconTexture[id][0][0]:SetAlpha(1.0);
+	diseaseIconTexture[id][0][1]:SetAlpha(1.0);
 	diseaseIconTexture[id][1][0]:SetAlpha(1.0);
+	diseaseIconTexture[id][1][1]:SetAlpha(1.0);
+	diseaseBarTexture[id][0]:SetAlpha(DKIDiseases_Saved.barAlpha);
+	diseaseBarTexture[id][1]:SetAlpha(DKIDiseases_Saved.bladeAlpha);
 	if(DKIDiseases_Saved.ringTrack == track) then
 		if(delta > 0 and DKIDiseases_Saved.ringSil > 0) then
 			diseaseIconTexture[id][0][0]:Show();
@@ -591,9 +608,13 @@ function DKIDiseases_Animate(id, delta, track)
 		end
 	end
 
-	if(DKIDiseases_Saved.fade and delta <= 0 and inCombat == 0) then
+	if(DKIDiseases_Saved.fade and inCombat == 0) then
 		diseaseIconTexture[id][0][0]:SetAlpha(0.3);
+		diseaseIconTexture[id][0][1]:SetAlpha(0.3);
 		diseaseIconTexture[id][1][0]:SetAlpha(0.3);
+		diseaseIconTexture[id][1][1]:SetAlpha(0.3);
+		diseaseBarTexture[id][0]:SetAlpha(0.3);
+		diseaseBarTexture[id][1]:SetAlpha(0.3);
 	end
 end
 
