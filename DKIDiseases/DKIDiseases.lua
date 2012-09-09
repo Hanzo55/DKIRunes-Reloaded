@@ -204,9 +204,6 @@ function DKIDiseases_LoadNewSavedVariables()
 		DKIDiseases_Saved.rotate = 0;
 	end
 
-	if(DKIDiseases_Saved.y[0] == nil) then
-		DKIDiseases_ResetLocation();
-	end
 end
 
 function DKIDiseases_OnLoad(self)
@@ -299,6 +296,10 @@ function DKIDiseases_UpdateUI()
 end
 
 function InitDisease(id, index)
+	if(DKIDiseases_Saved.y[id] == nil) then
+		DKIDiseases_ResetLocation(id);
+	end
+	
 	diseaseIcon[id][0]:ClearAllPoints()
 	diseaseIcon[id][0]:SetPoint(DKIDiseases_Saved.point[id], DKIDiseases_Saved.relativeTo[id], DKIDiseases_Saved.parentPoint[id], DKIDiseases_Saved.x[id], DKIDiseases_Saved.y[id])
 --	diseaseIcon[id][0]:SetFrameStrata(DKIDiseaseStrata[DKIDiseases_Saved.strata]);
@@ -460,19 +461,23 @@ end
 
 function DKIDiseases_OnUpdate(self, update)
 	if(diseaseIcon[0][0]:IsMouseEnabled()) then
-		local relativeTo;
 		for i=0, 2 do
-			DKIDiseases_Saved.point[i], relativeTo, DKIDiseases_Saved.parentPoint[i], DKIDiseases_Saved.x[i], DKIDiseases_Saved.y[i] = diseaseIcon[i][0]:GetPoint();
-			if(relativeTo) then
-				DKIDiseases_Saved.relativeTo[i] = relativeTo:GetName();
-			else
-				DKIDiseases_Saved.relativeTo[i] = relativeTo;
-			end
+			DKIDiseases_GetLocation(i);
 		end
 	end
 
  	DKIDiseases_UpdateIconsAndBars(); 
  	DKIDiseases_UpdateDemoIconsAndBars(nil, nil); 
+end
+
+function DKIDiseases_GetLocation(i)
+	local relativeTo;
+	DKIDiseases_Saved.point[i], relativeTo, DKIDiseases_Saved.parentPoint[i], DKIDiseases_Saved.x[i], DKIDiseases_Saved.y[i] = diseaseIcon[i][0]:GetPoint();
+	if(relativeTo) then
+		DKIDiseases_Saved.relativeTo[i] = relativeTo:GetName();
+	else
+		DKIDiseases_Saved.relativeTo[i] = relativeTo;
+	end
 end
 
 function DKIDiseases_UpdateIconsAndBars()
@@ -702,7 +707,9 @@ function DKIDiseases_Reset()
 	end
 
 	DKIDiseases_ConfigChange();
-	DKIDiseases_ResetLocation();
+	for i=0, 2 do	
+		DKIDiseases_ResetLocation(i);
+	end
 
 --ChatFrame1:AddMessage("point:"..DKIDiseases_Saved.point[0].." rel:"..DKIDiseases_Saved.relativeTo[0].." par:"..DKIDiseases_Saved.parentPoint[0].." savedX:"..tostring(DKIDiseases_Saved.x[0]).." savedY:"..tostring(DKIDiseases_Saved.y[0]));
 
@@ -719,18 +726,16 @@ function DKIDiseases_Reset()
 
 end
 
-function DKIDiseases_ResetLocation()
-	local relativeTo;
-	for i=0, 2 do
-		diseaseIcon[i][0]:ClearAllPoints()
-		if(DKIRunesFrame) then
-			diseaseIcon[i][0]:SetPoint("TOP", DKIRunesFrame, "CENTER", -117, -32 - i*40);
-		else
-			diseaseIcon[i][0]:SetPoint("TOP", UIParent, "CENTER", -117, -80 - i*40);
-		end
-		DKIDiseases_Saved.point[i], relativeTo, DKIDiseases_Saved.parentPoint[i], DKIDiseases_Saved.x[i], DKIDiseases_Saved.y[i] = diseaseIcon[i][0]:GetPoint();
-		DKIDiseases_Saved.relativeTo[i] = relativeTo:GetName();
+function DKIDiseases_ResetLocation(i)
+	local relativeTo;			
+	diseaseIcon[i][0]:ClearAllPoints()
+	if(DKIRunesFrame) then
+		diseaseIcon[i][0]:SetPoint("TOP", DKIRunesFrame, "CENTER", -117, -32 - i*40);
+	else
+		diseaseIcon[i][0]:SetPoint("TOP", UIParent, "CENTER", -117, -80 - i*40);
 	end
+	DKIDiseases_GetLocation(i);
+
 	FixDKIDTimerLocation(2, DKIDiseases_Saved.diseaseTimerLoc);
 	FixDKIDTimerLocation(3, DKIDiseases_Saved.pestilenceTimerLoc);
 end
