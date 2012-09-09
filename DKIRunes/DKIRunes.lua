@@ -1,8 +1,10 @@
 
 local RUNETYPE_BLOOD = 1;
 local RUNETYPE_DEATH = 2;
+local RUNETYPE_DEATH2 = 22;
 local RUNETYPE_FROST = 3;
 local RUNETYPE_CHROMATIC = 4;
+local RUNETYPE_CHROMATIC2 = 42;
 
 local DKIRunes = {
 	[RUNETYPE_BLOOD] = "Interface\\AddOns\\DKIRunes\\Blood_Runes",
@@ -10,6 +12,21 @@ local DKIRunes = {
 	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
 	[RUNETYPE_CHROMATIC] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
 };
+
+local altDKIRunes = {
+	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
+	[RUNETYPE_DEATH2] = "Interface\\AddOns\\DKIRunes\\Green_Unholy_Runes",
+	[RUNETYPE_CHROMATIC] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
+	[RUNETYPE_CHROMATIC2] = "Interface\\AddOns\\DKIRunes\\Purple_Death_Runes",
+};
+
+local runeEnergizeTextures = {
+	[RUNETYPE_BLOOD] = "Interface\\PlayerFrame\\Deathknight-Energize-Blood",
+	[RUNETYPE_FROST] = "Interface\\PlayerFrame\\Deathknight-Energize-Frost",
+	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
+	[RUNETYPE_CHROMATIC] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
+}
+
 
 local DKIRuneLengths = {
 	[RUNETYPE_BLOOD] = 69,
@@ -51,6 +68,7 @@ DKIRunes_Saved = {
 	fade = false;
 };
 
+
 function DKIRunes_LoadNewSavedVariables()
 	if(DKIRunes_Saved.artStyle == nil) then
 		DKIRunes_Saved.artStyle = 1;
@@ -90,7 +108,37 @@ function DKIRunes_LoadNewSavedVariables()
 	end
 	if(DKIRunes_Saved.counterScale == nil) then
 		DKIRunes_Saved.counterScale = 1;
-	end
+	end	
+	if(DKIRunes_Saved.runeLayout == nil) then
+		DKIRunes_Saved.runeLayout = {};
+	end	
+	if(DKIRunes_Saved.runeLayout[1] == nil) then
+		DKIRunes_Saved.runeLayout[1] = 60;
+	end	
+	if(DKIRunes_Saved.runeLayout[2] == nil) then
+		DKIRunes_Saved.runeLayout[2] = 36;
+	end		
+	if(DKIRunes_Saved.runeLayout[5] == nil) then
+		DKIRunes_Saved.runeLayout[5] = 12;
+	end	
+	if(DKIRunes_Saved.runeLayout[6] == nil) then
+		DKIRunes_Saved.runeLayout[6] = -12;
+	end		
+	if(DKIRunes_Saved.runeLayout[3] == nil) then
+		DKIRunes_Saved.runeLayout[3] = -36;
+	end	
+	if(DKIRunes_Saved.runeLayout[4] == nil) then
+		DKIRunes_Saved.runeLayout[4] = -60;
+	end	
+	if(DKIRunes_Saved.deadRune == nil) then
+		DKIRunes_Saved.deadRune = 0;
+	end	
+	if(DKIRunes_Saved.swap == nil) then
+		DKIRunes_Saved.swap = 0;
+	end		
+	if(DKIRunes_Saved.empower == nil) then
+		DKIRunes_Saved.empower = true;
+	end		
 end
 
 function DKIRunes_OnLoad(self)
@@ -165,6 +213,13 @@ function DKIRunes_OnEvent (self, event, ...)
 --		DKIRunesFrame:SetScript("OnMouseDown",function() DKIRunesFrame:StartMoving(); end)
 --		DKIRunesFrame:SetScript("OnMouseUp",function() DKIRunesFrame:StopMovingOrSizing() end)
 
+	elseif ( event == "RUNE_POWER_UPDATE" ) then
+		local runeIndex, isEnergize = ...;
+		
+		if(isEnergize and DKIRunes_Saved.empower) then
+			_G["Rune"..runeIndex].energize:Play();
+		end
+		
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
 		DKIRunes_inCombat2 = 1;
@@ -181,6 +236,7 @@ end
 function DKIRunes_UpdateUI()
 	DKIRunes_SetLocation();
 	DKIRunes_UpdateArt();
+	DKIRunes_SetRuneOffsets();
 end
 
 -- Set Art
@@ -204,6 +260,18 @@ function DKIRunes_UpdateArt()
 	else
 		DKIRunesFrame:SetFrameLevel(2);
 	end
+	
+	if ( DKIRunes_Saved.greenUnholy ) then
+		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH2]
+	else
+		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH]
+	end
+	if ( DKIRunes_Saved.purpleDeath ) then
+		DKIRunes[RUNETYPE_CHROMATIC] = altDKIRunes[RUNETYPE_CHROMATIC2]
+	else
+		DKIRunes[RUNETYPE_CHROMATIC] = altDKIRunes[RUNETYPE_CHROMATIC]
+	end
+
 end
 
 function DKIRunes_BarUpdate()
@@ -211,9 +279,13 @@ function DKIRunes_BarUpdate()
 	DKIRunesFrame:SetAlpha(1.0);
 	EbonBlade_Bar_0:Hide();
 	EbonBlade_Bar_1:Hide();
-	local runicPower = 181 * UnitMana("player") / UnitManaMax("player") ;
-	local healthPoints = 181 * UnitHealth("player") / UnitHealthMax("player") ;
-	local deathPoints = 181 * ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
+	Horizontal_Bar_0:Hide();
+	Horizontal_Bar_1:Hide();
+	Vertical_Bar_0:Hide();
+	Vertical_Bar_1:Hide();
+	local runicPower = UnitMana("player") / UnitManaMax("player") ;
+	local healthPoints = UnitHealth("player") / UnitHealthMax("player") ;
+	local deathPoints = ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
 
 	if (DKIRunes_Saved.bar0 > 0) then
 		local power0Value;
@@ -225,12 +297,16 @@ function DKIRunes_BarUpdate()
 			power0Value = runicPower;
 		end
 		if (DKIRunes_Saved.rotate % 2 == 1) then
-			EbonBlade_Bar_0:SetHeight(power0Value);
+			EbonBlade_Bar_0:SetHeight(181 * power0Value);
+			Vertical_Bar_0:SetHeight(150 * power0Value);
 		else
-			EbonBlade_Bar_0:SetWidth(power0Value);
+			EbonBlade_Bar_0:SetWidth(181 * power0Value);
+			Horizontal_Bar_0:SetWidth(150 * power0Value);
 		end
 		if(power0Value > 0) then
 			EbonBlade_Bar_0:Show();
+			Vertical_Bar_0:Show();
+			Horizontal_Bar_0:Show();
 		end
 	end
 
@@ -244,12 +320,16 @@ function DKIRunes_BarUpdate()
 			power1Value = runicPower;
 		end
 		if (DKIRunes_Saved.rotate % 2 == 1) then
-			EbonBlade_Bar_1:SetHeight(power1Value);
+			EbonBlade_Bar_1:SetHeight(181 * power1Value);
+			Vertical_Bar_1:SetHeight(150 * power1Value);
 		else
-			EbonBlade_Bar_1:SetWidth(power1Value);
+			EbonBlade_Bar_1:SetWidth(181 * power1Value);
+			Horizontal_Bar_1:SetWidth(150 * power1Value);
 		end
 		if(power1Value > 0) then
 			EbonBlade_Bar_1:Show();
+			Vertical_Bar_1:Show();
+			Horizontal_Bar_1:Show();
 		end
 	end
 
@@ -262,12 +342,22 @@ function DKIRunes_BarUpdate()
 		DKIRunesFrame:SetAlpha(0.3);
 		EbonBlade_Bar_0:Hide();
 		EbonBlade_Bar_1:Hide();
+		Horizontal_Bar_0:Hide();
+		Horizontal_Bar_1:Hide();
+		Vertical_Bar_0:Hide();
+		Vertical_Bar_1:Hide();
 	end
 end
 
 function DKIRunes_SetLocation()
 	DKIRunesFrame:ClearAllPoints()
 	DKIRunesFrame:SetPoint(DKIRunes_Saved.point, DKIRunes_Saved.parent, DKIRunes_Saved.parentPoint, DKIRunes_Saved.x, DKIRunes_Saved.y);
+end
+
+function DKIRunes_SetRuneOffsets()
+	for rune=1, 6 do
+		runeOffset[rune] = DKIRunes_Saved.runeLayout[rune];
+	end
 end
 
 function DKIRunes_OnUpdate(self, update)
@@ -277,16 +367,15 @@ function DKIRunes_OnUpdate(self, update)
 	end
 
 	for i=1, 6 do
-		local runeType = GetRuneType(i);	
+		local runeType = GetRuneType(i);
 		local runeLength = DKIRuneLengths[runeType];
 		local maxFrameX = math.fmod( runeLength, 8);
 		local maxFrameY = math.floor( runeLength / 8 );
 		DKIRunes_AnimateRune(i, runeLength, maxFrameX, maxFrameY);
 
-		if ( getglobal("Rune"..i).flash and getglobal("Rune"..i).flash > 0 ) then
+		if ( _G["Rune"..i].flash and _G["Rune"..i].flash > 0 ) then
 			DKIRunes_Rune_SetFrame(i, 0, 0);
-			getglobal("Rune"..i).flash = getglobal("Rune"..i).flash - 1;
-
+			_G["Rune"..i].flash = _G["Rune"..i].flash - 1;
 		end
 	end
 
@@ -299,23 +388,33 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 	local start, duration, runeReady = GetRuneCooldown(rune);
 	local percent = 1 - ((GetTime() - start)/duration);
 
+	if(DKIRunes_Saved.swap > 0 and rune % 2 == 0) then
+		DKIRunes_DetermineRuneSwap(rune, percent);
+	end
+	
 	if ( runeReady or percent <= 0 ) then
-		if ( getglobal("Rune"..rune).notReady ) then
-			getglobal("Rune"..rune).flash = 2.0;
-			getglobal("Rune"..rune).notReady = nil;
+		if ( _G["Rune"..rune].notReady ) then
+			_G["Rune"..rune].flash = 2.0;
+			_G["Rune"..rune].notReady = nil;
 		end
-		if (DKIRunes_Saved.hero) then
-			if (DKIRunes_Saved.rotate % 2 == 1) then
-				getglobal("Rune"..rune):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[rune] ) 
-			else
-				getglobal("Rune"..rune):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], 0 ) 
-			end
+		if (DKIRunes_Saved.rotate % 2 == 1) then
+			_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[rune] ) 
+		else
+			_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], 0 ) 
 		end
 	else
 		
 		local heroValue = percent * DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
+		if(percent >= 1) then
+			_G["Rune"..rune].energize:Stop();
+			if(DKIRunes_Saved.deadRune == 1) then
+				heroValue = DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
+			elseif(DKIRunes_Saved.deadRune == 2) then
+				heroValue = 0;
+			end
+		end
 
-		getglobal("Rune"..rune).notReady = true;
+		_G["Rune"..rune].notReady = true;
 
 		local rawFrame = animationStart;
 		if (DKIRunes_Saved.animate) then
@@ -342,16 +441,22 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 				heroValue = -heroValue;
 			end
 			if (DKIRunes_Saved.rotate % 2 == 1) then
-				getglobal("Rune"..rune):SetPoint('CENTER', DKIRunesFrame, 'CENTER', heroValue, runeOffset[rune] )
+				_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', heroValue, runeOffset[rune] )
 			else
-				getglobal("Rune"..rune):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], -heroValue ) 
+				_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], -heroValue ) 
+			end
+		else
+			if (DKIRunes_Saved.rotate % 2 == 1) then
+				_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[rune] ) 
+			else
+				_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], 0 ) 
 			end
 		end
 
 	end
 
 	if(DKIRunes_Saved.cooldown) then
-		local cooldown = getglobal("Rune"..rune.."Cooldown");
+		local cooldown = _G["Rune"..rune.."Cooldown"];
 		local displayCooldown = 1;
 		CooldownFrame_SetTimer(cooldown, start, duration, displayCooldown);
 	end
@@ -363,19 +468,40 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 
 end
 
+function DKIRunes_DetermineRuneSwap(rune, percent)
+	local altRune = rune - 1;
+	local start, duration, runeReady = GetRuneCooldown(altRune);
+	local altPercent = 1 - ((GetTime() - start)/duration);
+	local swap = false
+	
+	if(DKIRunes_Saved.swap == 1 and ((runeOffset[rune] < runeOffset[altRune] and percent < altPercent) or (runeOffset[rune] > runeOffset[altRune] and percent > altPercent))) then
+		swap = true;
+	elseif(DKIRunes_Saved.swap == 2 and ((runeOffset[rune] < runeOffset[altRune] and percent > altPercent) or (runeOffset[rune] > runeOffset[altRune] and percent < altPercent))) then
+		swap = true;
+	end
+	
+	if(swap) then
+		local temp = runeOffset[rune];
+		runeOffset[rune] = runeOffset[altRune];
+		runeOffset[altRune] = temp;
+	end
+end
+
 function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	--ChatFrame1:AddMessage(string.format("%s: (%s, %s)", rune, frameX, frameY));
 	local width = 0.125;
 	local height = 0.0625;
 	local runeType = GetRuneType(rune);	
 	local texture = DKIRunes[runeType];
+--	local retexture = runeEnergizeTextures[runeType];
 	--ChatFrame1:AddMessage(string.format("FrameX: %s, FrameY: %s, Rune: %s", frameX, frameY, rune));
 
-	getglobal("Rune"..rune):Show();
-	getglobal("Rune"..rune.."Cooldown"):SetAlpha(0);
-	getglobal("Rune"..rune.."Rune"):Show();
-	getglobal("Rune"..rune.."Rune"):SetTexture(texture);
-	getglobal("Rune"..rune.."Rune"):SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);
+	_G["Rune"..rune]:Show();
+	_G["Rune"..rune.."Cooldown"]:SetAlpha(0);
+	_G["Rune"..rune.."Rune"]:Show();
+	_G["Rune"..rune.."Rune"]:SetTexture(texture);
+	_G["Rune"..rune.."Rune"]:SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);
+--	_G["Rune"..rune.."RuneColorGlow"]:SetTexture(retexture);
 end
 
 function DKIRunes_Rotate(spin)
@@ -428,12 +554,12 @@ function DKIRunes_Rotate(spin)
 		EbonBlade_Bar_1:SetWidth(17);
 		EbonBlade_Top:SetWidth(256);
 		EbonBlade_Top:SetHeight(512);
-		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[1])
-		getglobal("Rune2"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[2])
-		getglobal("Rune5"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[5])
-		getglobal("Rune6"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[6])
-		getglobal("Rune3"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[3])
-		getglobal("Rune4"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[4])
+		_G["Rune1"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[1])
+		_G["Rune2"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[2])
+		_G["Rune5"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[5])
+		_G["Rune6"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[6])
+		_G["Rune3"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[3])
+		_G["Rune4"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[4])
 	else
 		EbonBlade_Base:SetWidth(512);
 		EbonBlade_Base:SetHeight(256);
@@ -441,12 +567,12 @@ function DKIRunes_Rotate(spin)
 		EbonBlade_Bar_1:SetHeight(17);
 		EbonBlade_Top:SetWidth(512);
 		EbonBlade_Top:SetHeight(256);
-		getglobal("Rune1"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[1], 0)
-		getglobal("Rune2"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[2], 0)
-		getglobal("Rune5"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[5], 0)
-		getglobal("Rune6"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[6], 0)
-		getglobal("Rune3"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[3], 0)
-		getglobal("Rune4"):SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[4], 0)
+		_G["Rune1"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[1], 0)
+		_G["Rune2"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[2], 0)
+		_G["Rune5"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[5], 0)
+		_G["Rune6"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[6], 0)
+		_G["Rune3"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[3], 0)
+		_G["Rune4"]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[4], 0)
 	end
 
 	DKIRunes_BarUpdate();
@@ -477,6 +603,17 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.rpCounter = true;
 	DKIRunes_Saved.counterScale = 1;
 	DKIRunes_Saved.fade = false;
+	DKIRunes_Saved.runeLayout[1] = 60;
+	DKIRunes_Saved.runeLayout[2] = 36;
+	DKIRunes_Saved.runeLayout[5] = 12;
+	DKIRunes_Saved.runeLayout[6] = -12;
+	DKIRunes_Saved.runeLayout[3] = -36;
+	DKIRunes_Saved.runeLayout[4] = -60;
+	DKIRunes_Saved.deadRune = 0;
+	DKIRunes_Saved.swap = 0;
+	DKIRunes_Saved.empower = true;
+	DKIRunes_Saved.greenUnholy = false;
+	DKIRunes_Saved.purpleDeath = false;
 
 	DKIRunesFrame:SetMovable(false)
 	DKIRunesFrame:EnableMouse(false)
@@ -484,10 +621,10 @@ function DKIRunes_Reset(frame)
 	DKIRunes_ConfigChange();
 	DKIRunes_UpdateUI();
 
-	UIDropDownMenu_Initialize(getglobal("RuneFrameGraphics"), Graphics_Initialise)
-	UIDropDownMenu_Initialize(getglobal("HeroOrigin"), HeroOrigin_Initialise)
-	UIDropDownMenu_Initialize(getglobal("RunicBar0"), RunicBar0_Initialise)
-	UIDropDownMenu_Initialize(getglobal("RunicBar1"), RunicBar1_Initialise)
+	UIDropDownMenu_Initialize(_G["RuneFrameGraphics"], Graphics_Initialise)
+	UIDropDownMenu_Initialize(_G["HeroOrigin"], HeroOrigin_Initialise)
+	UIDropDownMenu_Initialize(_G["RunicBar0"], RunicBar0_Initialise)
+	UIDropDownMenu_Initialize(_G["RunicBar1"], RunicBar1_Initialise)
 
 end
 
