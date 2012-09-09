@@ -7,7 +7,7 @@
 			<AbsDimension x="32" y="32"/>
 		</Size>
 		<Frames>
-			<Cooldown name="$parentCooldown">
+			<Cooldown name="$parentCooldown" hidden="true">
 				<Size x="32" y="32"/>
 				<Anchors>
 				  <Anchor point="CENTER">

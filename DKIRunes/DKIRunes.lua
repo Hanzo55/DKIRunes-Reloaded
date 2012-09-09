@@ -397,6 +397,7 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	--ChatFrame1:AddMessage(string.format("FrameX: %s, FrameY: %s, Rune: %s", frameX, frameY, rune));
 
 	getglobal("Rune"..rune):Show();
+	getglobal("Rune"..rune.."Cooldown"):SetAlpha(0);
 	getglobal("Rune"..rune.."Rune"):Show();
 	getglobal("Rune"..rune.."Rune"):SetTexture(texture);
 	getglobal("Rune"..rune.."Rune"):SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);
@@ -911,13 +912,9 @@ function DKIRunes_Debug()
 --	ChatFrame1:AddMessage(" style: "..tostring(DKIRunes_Saved.artStyle).." x: "..tostring(DKIRunes_Saved.x).." style: "..tostring(DKIRunes_Saved.y) );
 end
 
-
---[[
-function DKIRunes_SlashCommand(cmd, self)
-	DKIRunes_Reset(	DKIRunesFrame);
+--load slash commands
+SlashCmdList["DKIRUNES"] = function()
+	InterfaceOptionsFrame_OpenToCategory('DKIRunes')
 end
-
-
-SLASH_DKIRUNES1 = "/dkirunes";
-SlashCmdList["DKIRUNES"] = DKIRunes_SlashCommand;
---]]
+SLASH_DKIRUNES1 = "/dkirunes"
+SLASH_DKIRUNES2 = "/dki"
