@@ -1,4 +1,3 @@
-
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
 local DISEASETYPE_SCARLETFEVER = 4;
@@ -509,7 +508,7 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[0] = apBase + posBuff + negBuff;
 		if(IncludeSF) then
-			DKIDiseases_UpdateIconAndBar(81130, 3, true);
+			DKIDiseases_UpdateIconAndBar(115798, 3, true); --HANZO: Pass the spell id for Weakened Blows in MoP
 		end		
 	end
 	
