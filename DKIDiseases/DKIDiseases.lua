@@ -1,7 +1,6 @@
 
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
-local DISEASETYPE_EBONPLAGUE = 3;
 local DISEASETYPE_SCARLETFEVER = 4;
 
 local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
@@ -9,28 +8,24 @@ local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
 local DKIDisease_Ring_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_ring_color",
-	[DISEASETYPE_EBONPLAGUE] = "Interface\\AddOns\\DKIDiseases\\EP_ring_color",
 	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_ring_color",
 };
 
 local DKIDisease_Icons = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon",
-	[DISEASETYPE_EBONPLAGUE] = "Interface\\AddOns\\DKIDiseases\\EP_icon",
 	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_icon",
 };
 
 local DKIDisease_Icon_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon_color",
-	[DISEASETYPE_EBONPLAGUE] = "Interface\\AddOns\\DKIDiseases\\EP_icon_color",
 	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_icon_color",
 };
 
 local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
-	[DISEASETYPE_EBONPLAGUE] = "Interface\\AddOns\\DKIDiseases\\EP_bar",
 	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_bar",
 };
 
@@ -38,7 +33,6 @@ local DKIDisease_Bars = {
 local DKIDisease_Inner_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_inner_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_inner_bar",
-	[DISEASETYPE_EBONPLAGUE] = "Interface\\AddOns\\DKIDiseases\\EP_inner_bar",
 	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_inner_bar",
 };
 
@@ -188,7 +182,7 @@ diseaseBarTexture[3][0] = diseaseBar[3]:CreateTexture("DKIDiseasesBar30", "BACKG
 diseaseBarTexture[3][1] = diseaseBar[3]:CreateTexture("DKIDiseasesBar31", "BORDER")
 
 local pestTime = nil
-local diseaseDuration = 21
+local diseaseDuration = 30	--HANZO: v5.0.4: diseases are baseline 30s now. No more Epidemic talent.
 local pest = {}
 local ap = {}
 --local IncludeEW = nil
@@ -481,17 +475,12 @@ end
 
 function DKIDiseases_Talents_Check()
 	_, _, _, _, SF_currentRank, _, _, _ = GetTalentInfo(1, 6);
-	_, _, _, _, Epi_currentRank, _, _, _ = GetTalentInfo(3, 3);
-	_, _, _, _, EP_currentRank, _, _, _ = GetTalentInfo(3, 18);
-
-	if (EP_currentRank > 0 and DKIDiseases_Saved.ep) then
-		InitDisease(2, DISEASETYPE_EBONPLAGUE);
-		IncludeEP = true
-	else
-		IncludeEP = false
-		diseaseIcon[2][0]:Hide();
-		diseaseIcon[2][1]:Hide();
-		diseaseBar[2]:Hide();	
+	
+	SF_currentRank = 0;
+	talents = GetSpecialization();
+	
+	if (talents == 1) then
+		SF_currentRank = 1;
 	end
 
 	if (SF_currentRank > 0 and DKIDiseases_Saved.sf) then
@@ -503,10 +492,6 @@ function DKIDiseases_Talents_Check()
 		diseaseIcon[3][1]:Hide();
 		diseaseBar[3]:Hide();
 	end
-	
-	if (Epi_currentRank > 0) then
-		diseaseDuration = 21 + Epi_currentRank * 4;
-	end
 end
 
 function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
@@ -516,9 +501,6 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 		pestTime = GetTime();
 		DKIDiseases_UpdateIconAndBar(55078, 0);
 		DKIDiseases_UpdateIconAndBar(59921, 1);	
-		if(IncludeEP) then
-			DKIDiseases_UpdateIconAndBar(65142, 2);
-		end
 		pestTime = nil;
 	end
 	
@@ -537,35 +519,27 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 		ap[1] = apBase + posBuff + negBuff;
 	end
 	
-	-- Hungering Cold (which applied Frost Fever)
-	if(player == "player" and spell == GetSpellInfo(49203)) then
-		local apBase, posBuff, negBuff = UnitAttackPower("player");
-		ap[1] = apBase + posBuff + negBuff;
-		DKIDiseases_UpdateIconAndBar(59921, 1, true);
-	end
-	
 	-- Howling Blast (which, if glyphed, would infect with Frost Fever)
 	if(player == "player" and spell == GetSpellInfo(49184)) then
-		local hbGlyph = false
-		for i = 1, 9 do
-			local enabled, _, _, glyphSpellID = GetGlyphSocketInfo(i);
-			if ( enabled and glyphSpellID == 63335) then
-				hbGlyph = true;
-			end
-		end
-		if(hbGlyph) then
 			local apBase, posBuff, negBuff = UnitAttackPower("player");
 			ap[1] = apBase + posBuff + negBuff;
 			DKIDiseases_UpdateIconAndBar(59921, 1, true);
-		end
 	end
 	
-	-- ** NEW ** 
 	-- Festering Strike
-	if (player == "player" and (spell == GetSpellInfo(86061) or spell == GetSpellInfo(85948))) then
+	if (player == "player" and (spell == GetSpellInfo(85948))) then
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[0] = apBase + posBuff + negBuff;	
 		ap[1] = apBase + posBuff + negBuff;
+	end
+	
+	--HANZO ** NEW for 5.0.4 **
+	-- Unholy Blight applies Frost Fever *and* Blood Plague
+	if (player == "player" and (spell == GetSpellInfo(115994))) then
+		local apBase, posBuff, negBuff = UnitAttackPower("player");
+		ap[1] = apBase + posBuff + negBuff;
+		DKIDiseases_UpdateIconAndBar(55078, 0);
+		DKIDiseases_UpdateIconAndBar(59921, 1);	
 	end
 
 end
@@ -609,17 +583,14 @@ function DKIDiseases_GetLocation(i)
 end
 
 function DKIDiseases_UpdateIconsAndBars()
-	DKIDiseases_UpdateIconAndBar(55078, 0);
-	DKIDiseases_UpdateIconAndBar(59921, 1);
-	
-	if(IncludeSF) then
-		DKIDiseases_UpdateIconAndBar(81130, 3);
-	end
-	
-	if(IncludeEP) then
-		DKIDiseases_UpdateIconAndBar(65142, 2);
-	end
+	DKIDiseases_UpdateIconAndBar(55078, 0); -- BLOOD PLAGUE
+	DKIDiseases_UpdateIconAndBar(59921, 1); -- FROST FEVER
 
+	-- HANZO: Scarlet Fever now causes Weakened Blows to be applied to targets with Blood Plague
+	if(IncludeSF) then
+		DKIDiseases_UpdateIconAndBar(115798, 3); -- WEAKENED BLOWS
+	end
+	
 	--	id = GetSpellID("Frost Fever");
 --	ChatFrame1:AddMessage("WTF: "..tostring(id));
 --	id = GetSpellID("Blood Plague");
@@ -683,9 +654,6 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, forcePest)
 
 	if(not duration or duration > 60) then
 		duration = diseaseDuration;
-	end
-	if(debuff==81130)then
-		duration = 30;
 	end
 	--ChatFrame1:AddMessage("endtime: "..tostring(endTime).." isMine: "..tostring(endTime));
 	
