@@ -36,26 +36,6 @@ function DKIDiseases_populateBlizzardOptions()
 	rotate:GetFontString():SetPoint("TOP", rotate, "TOP", 0, -6)
 	rotate:SetPoint('LEFT', lock, 'RIGHT', 115, 2)
 
---[[
-	local strataTitle = frame:CreateFontString("DKIDStrataTitleString","ARTWORK","GameFontNormal");
-	strataTitle:SetText("Strata")
-	strataTitle:SetPoint('LEFT', Demo1Button, 'RIGHT', 10, 0)
-
-	local strata = CreateFrame("Slider", "DKIDStrataSlider", frame, "OptionsSliderTemplate")
-	strata:SetMinMaxValues(1,8)
-	strata:SetValueStep(1)
-	strata:SetWidth(30)
-	_G['DKIDStrataSliderLow']:SetText("0")
-	_G['DKIDStrataSliderHigh']:SetText("4")
-	strata:SetScript('OnShow', function(self) self:SetValue(DKIDiseases_Saved.strata) end)
-	strata:SetScript('OnValueChanged', DKIDStrataSlider_ValueChanged)
-	strata:SetPoint('LEFT', DKIDStrataTitleString, 'RIGHT', 10, 0)
-
-	local optionsTitle = frame:CreateFontString("DKIDOptionsTitleString","ARTWORK","GameTooltipHeaderText");
-	optionsTitle:SetText("Disease Options")
-	optionsTitle:SetPoint('TOPLEFT', reset, 'BOTTOMLEFT', 0, -10)
---]]
-
 	local fade = CreateFrame("CheckButton", "DKIDAgroFade", frame, "OptionsCheckButtonTemplate");
 	_G[fade:GetName().."Text"]:SetText("Fade out of Combat");
 	fade:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.fade) end)
@@ -82,17 +62,11 @@ function DKIDiseases_populateBlizzardOptions()
 	optTitle:SetText("Optional Tracking")
 	optTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -40)
 
-	local epCheck = CreateFrame("CheckButton", "EPCheck", frame, "OptionsCheckButtonTemplate");
-	_G[epCheck:GetName().."Text"]:SetText("Ebon Plague");
-	epCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.ep) end)
-	epCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.ep = self:GetChecked();DKIDiseases_Talents_Check(); end)
-	epCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
-
 	local sfCheck = CreateFrame("CheckButton", "SFCheck", frame, "OptionsCheckButtonTemplate");
-	_G[sfCheck:GetName().."Text"]:SetText("Scarlet Fever");
+	_G[sfCheck:GetName().."Text"]:SetText("Weakened Blows");
 	sfCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.sf) end)
 	sfCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.sf = self:GetChecked();DKIDiseases_Talents_Check() end)
-	sfCheck:SetPoint('LEFT', epCheck, 'RIGHT', 120, 0)
+	sfCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
 
 	local ringTitle = frame:CreateFontString("ringTitleString","ARTWORK","GameTooltipHeaderText");
 	ringTitle:SetText("Disease Rings and Icons")
