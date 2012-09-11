@@ -1,6 +1,8 @@
 DKIRunes-Reloaded
 =================
 
+* Download: [Wowinterface.com](http://www.wowinterface.com/downloads/info21599-DKIRunesReloaded.html)
+
 DKIRunes Reloaded is a fan-based update to World of Warcraft add-on DKIRunes/DKIDiseases, in the absence of the original author, ElderFuthark.
 
 ## Installation
