@@ -25,7 +25,7 @@ local runeEnergizeTextures = {
 	[RUNETYPE_FROST] = "Interface\\PlayerFrame\\Deathknight-Energize-Frost",
 	[RUNETYPE_UNHOLY] = "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
 	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
-}
+};
 
 local DKIRuneLengths = {
 	[RUNETYPE_BLOOD] = 69,
@@ -34,22 +34,35 @@ local DKIRuneLengths = {
 	[RUNETYPE_DEATH] = 67,
 };
 
+local DKIRuneColors = {
+	[RUNETYPE_BLOOD]	= {1, 0, 0},
+	[RUNETYPE_FROST] = {0, 1, 1},
+	[RUNETYPE_UNHOLY] = {0, 0.5, 0},
+	[RUNETYPE_DEATH] = {0.8, 0.1, 1},
+};
+
+local altDKIRuneColors = {
+	[RUNETYPE_UNHOLY2] = {0.06, 0.43, 0.12},
+	[RUNETYPE_DEATH2] = {0.65, 0.11, 0.82},		
+};
+
+--HANZO: the array order is mixed up for readability: in-game, the rune order from left to right is 1,2,5,6,3,4 = blood, blood, frost, frost, unholy, unholy
 local runeOffset = {
 	[1] = 60,
 	[2] = 36,
-	[3] = -36,
-	[4] = -60,
 	[5] = 12,
 	[6] = -12,
+	[3] = -36,
+	[4] = -60,
 }
 
 local runeBurst = {
 	[1] = true,
 	[2] = true,
-	[3] = true,
-	[4] = true,
 	[5] = true,
 	[6] = true,
+	[3] = true,
+	[4] = true,
 };
 
 local inCombat = 0;
@@ -146,6 +159,12 @@ function DKIRunes_LoadNewSavedVariables()
 	end		
 end
 
+function DKIRunes_Rune_OnLoad(self)
+	self.fill = _G[self.GetName().."Fill"];
+	self.shine = _G[self.GetName().."ShineTexture"];
+	self.colorOrb = _G[self.GetName().."RuneColorGlow"];
+end
+
 function DKIRunes_OnLoad(self)
 	
 	self.runes = {};
@@ -156,6 +175,7 @@ function DKIRunes_OnLoad(self)
 	if ( class ~= "DEATHKNIGHT" ) then
 		self:Hide();
 	else
+		--Hide the default runes on the UI
 		RuneButtonIndividual1:Hide();
 		RuneButtonIndividual2:Hide();
 		RuneButtonIndividual3:Hide();
@@ -166,6 +186,7 @@ function DKIRunes_OnLoad(self)
 		if ( GetCVarBool("predictedPower") and frequentUpdates ) then
 			self:RegisterEvent("UNIT_RUNIC_POWER");
 		end
+
 		self:RegisterEvent("RUNE_POWER_UPDATE");
 		self:RegisterEvent("RUNE_TYPE_UPDATE");
 		self:RegisterEvent("RUNE_REGEN_UPDATE");
@@ -216,6 +237,7 @@ function DKIRunes_OnEvent (self, event, ...)
 	
 		DKIRunesFrame:EnableMouse(false)
 
+	--Fires when the availability of one of the player's rune resources changes
 	elseif ( event == "RUNE_POWER_UPDATE" ) then
 		local runeIndex, isEnergize = ...;
 		
@@ -370,11 +392,11 @@ function DKIRunes_OnUpdate(self, update)
 	end
 
 	for i=1, 6 do
-		local runeType = GetRuneType(i);
+		local runeType = GetRuneType( i );
 		local runeLength = DKIRuneLengths[runeType];
-		local maxFrameX = math.fmod( runeLength, 8);
+		local maxFrameX = math.fmod( runeLength, 8 );
 		local maxFrameY = math.floor( runeLength / 8 );
-		DKIRunes_AnimateRune(i, runeLength - 2, maxFrameX, maxFrameY);
+		DKIRunes_AnimateRune( i, runeLength - 2, maxFrameX, maxFrameY );
 	end
 
 	DKIRunes_BarUpdate()
@@ -391,15 +413,19 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 	end
 	
 	if ( runeReady or percent <= 0 ) then
+
 		runeBurst[rune] = true;
+
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', 0, runeOffset[rune] ) 
 		else
 			_G["Rune"..rune]:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -runeOffset[rune], 0 ) 
 		end
+
 	else
 		
 		local heroValue = percent * DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
+
 		if(percent >= 1) then
 			_G["Rune"..rune].energize:Stop();
 			if(DKIRunes_Saved.deadRune == 1) then
@@ -410,6 +436,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 		end
 
 		local rawframe;
+
 		if(runeBurst[rune]) then
 			runeBurst[rune] = false;
 			rawFrame = animationStart + 1;
@@ -426,6 +453,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 		if ( frameY <= 0 ) then
 			frameY = 0;
 		end
+
 		if ( percent <= 0 ) then
 			frameX = 0;
 		end
@@ -487,7 +515,7 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	local height = 0.0625;
 	local runeType = GetRuneType(rune);	
 	local texture = DKIRunes[runeType];
---	local retexture = runeEnergizeTextures[runeType];
+	--local retexture = runeEnergizeTextures[runeType];
 	--ChatFrame1:AddMessage(string.format("FrameX: %s, FrameY: %s, Rune: %s", frameX, frameY, rune));
 
 	_G["Rune"..rune]:Show();
@@ -495,7 +523,7 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	_G["Rune"..rune.."Rune"]:Show();
 	_G["Rune"..rune.."Rune"]:SetTexture(texture);
 	_G["Rune"..rune.."Rune"]:SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);
---	_G["Rune"..rune.."RuneColorGlow"]:SetTexture(retexture);
+	--_G["Rune"..rune.."RuneColorGlow"]:SetTexture(retexture);
 end
 
 function DKIRunes_Rotate(spin)
