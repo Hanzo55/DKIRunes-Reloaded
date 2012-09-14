@@ -1,38 +1,38 @@
 
 local RUNETYPE_BLOOD = 1;
-local RUNETYPE_DEATH = 2;
-local RUNETYPE_DEATH2 = 22;
+local RUNETYPE_UNHOLY = 2;
+local RUNETYPE_UNHOLY2 = 22;
 local RUNETYPE_FROST = 3;
-local RUNETYPE_CHROMATIC = 4;
-local RUNETYPE_CHROMATIC2 = 42;
+local RUNETYPE_DEATH = 4;
+local RUNETYPE_DEATH2 = 42;
 
 local DKIRunes = {
 	[RUNETYPE_BLOOD] = "Interface\\AddOns\\DKIRunes\\Blood_Runes",
 	[RUNETYPE_FROST] = "Interface\\AddOns\\DKIRunes\\Frost_Runes",
-	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
-	[RUNETYPE_CHROMATIC] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
+	[RUNETYPE_UNHOLY] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
+	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
 };
 
 local altDKIRunes = {
-	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
-	[RUNETYPE_DEATH2] = "Interface\\AddOns\\DKIRunes\\Green_Unholy_Runes",
-	[RUNETYPE_CHROMATIC] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
-	[RUNETYPE_CHROMATIC2] = "Interface\\AddOns\\DKIRunes\\Purple_Death_Runes",
+	[RUNETYPE_UNHOLY] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
+	[RUNETYPE_UNHOLY2] = "Interface\\AddOns\\DKIRunes\\Green_Unholy_Runes",
+	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
+	[RUNETYPE_DEATH2] = "Interface\\AddOns\\DKIRunes\\Purple_Death_Runes",
 };
 
 local runeEnergizeTextures = {
 	[RUNETYPE_BLOOD] = "Interface\\PlayerFrame\\Deathknight-Energize-Blood",
 	[RUNETYPE_FROST] = "Interface\\PlayerFrame\\Deathknight-Energize-Frost",
-	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
-	[RUNETYPE_CHROMATIC] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
+	[RUNETYPE_UNHOLY] = "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
+	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
 }
 
 
 local DKIRuneLengths = {
 	[RUNETYPE_BLOOD] = 69,
 	[RUNETYPE_FROST] = 49,
-	[RUNETYPE_DEATH] = 65,
-	[RUNETYPE_CHROMATIC] = 67,
+	[RUNETYPE_UNHOLY] = 65,
+	[RUNETYPE_DEATH] = 67,
 };
 
 local runeOffset = {
@@ -186,8 +186,8 @@ function DKIRunes_OnEvent (self, event, ...)
 		Rune1:SetFrameLevel(4);
 		Rune2:SetFrameLevel(4);
 
-		Rune3Rune:SetTexture(DKIRunes[RUNETYPE_DEATH]);
-		Rune4Rune:SetTexture(DKIRunes[RUNETYPE_DEATH]);
+		Rune3Rune:SetTexture(DKIRunes[RUNETYPE_UNHOLY]);
+		Rune4Rune:SetTexture(DKIRunes[RUNETYPE_UNHOLY]);
 		Rune3:SetFrameLevel(4);
 		Rune4:SetFrameLevel(4);
 
@@ -269,14 +269,14 @@ function DKIRunes_UpdateArt()
 	end
 	
 	if ( DKIRunes_Saved.greenUnholy ) then
+		DKIRunes[RUNETYPE_UNHOLY] = altDKIRunes[RUNETYPE_UNHOLY2]
+	else
+		DKIRunes[RUNETYPE_UNHOLY] = altDKIRunes[RUNETYPE_UNHOLY]
+	end
+	if ( DKIRunes_Saved.purpleDeath ) then
 		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH2]
 	else
 		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH]
-	end
-	if ( DKIRunes_Saved.purpleDeath ) then
-		DKIRunes[RUNETYPE_CHROMATIC] = altDKIRunes[RUNETYPE_CHROMATIC2]
-	else
-		DKIRunes[RUNETYPE_CHROMATIC] = altDKIRunes[RUNETYPE_CHROMATIC]
 	end
 
 end
