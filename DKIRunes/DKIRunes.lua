@@ -1,10 +1,10 @@
 
 local RUNETYPE_BLOOD = 1;
 local RUNETYPE_UNHOLY = 2;
-local RUNETYPE_UNHOLY2 = 22;
+local RUNETYPE_UNHOLY2 = 22;	--Alternate Green Runes
 local RUNETYPE_FROST = 3;
 local RUNETYPE_DEATH = 4;
-local RUNETYPE_DEATH2 = 42;
+local RUNETYPE_DEATH2 = 42; --Alternate Purple Runes
 
 local DKIRunes = {
 	[RUNETYPE_BLOOD] = "Interface\\AddOns\\DKIRunes\\Blood_Runes",
@@ -27,7 +27,6 @@ local runeEnergizeTextures = {
 	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
 }
 
-
 local DKIRuneLengths = {
 	[RUNETYPE_BLOOD] = 69,
 	[RUNETYPE_FROST] = 49,
@@ -38,10 +37,10 @@ local DKIRuneLengths = {
 local runeOffset = {
 	[1] = 60,
 	[2] = 36,
-	[5] = 12,
-	[6] = -12,
 	[3] = -36,
 	[4] = -60,
+	[5] = 12,
+	[6] = -12,
 }
 
 local runeBurst = {
@@ -51,9 +50,9 @@ local runeBurst = {
 	[4] = true,
 	[5] = true,
 	[6] = true,
-}
+};
 
-local inCombat = 0
+local inCombat = 0;
 
 -- Saved Variable
 DKIRunes_Saved = {
@@ -77,7 +76,6 @@ DKIRunes_Saved = {
 	fade = false;
 	empower = true;
 };
-
 
 function DKIRunes_LoadNewSavedVariables()
 	if(DKIRunes_Saved.artStyle == nil) then
@@ -217,8 +215,6 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunes_inCombat2 = 0;
 	
 		DKIRunesFrame:EnableMouse(false)
---		DKIRunesFrame:SetScript("OnMouseDown",function() DKIRunesFrame:StartMoving(); end)
---		DKIRunesFrame:SetScript("OnMouseUp",function() DKIRunesFrame:StopMovingOrSizing() end)
 
 	elseif ( event == "RUNE_POWER_UPDATE" ) then
 		local runeIndex, isEnergize = ...;
