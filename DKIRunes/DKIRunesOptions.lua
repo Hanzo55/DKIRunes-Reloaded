@@ -51,6 +51,12 @@ function DKIRunes_populateBlizzardOptions()
 	empower:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.empower) end)
 	empower:SetScript('OnClick', function(self) DKIRunes_Saved.empower = self:GetChecked() end)
 	empower:SetPoint('TOPLEFT', optionsTitle, 'BOTTOMLEFT', 20, -5)
+	
+	local rc_blur = CreateFrame("CheckButton", "BlurCheck", frame, "OptionsCheckButtonTemplate");
+	_G[rc_blur:GetName().."Text"]:SetText("Runic Corruption Blur");
+	rc_blur:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.rc_blur) end);
+	rc_blur:SetScript('OnClick', function(self) DKIRunes_Saved.rc_blur = self:GetChecked() end);
+	rc_blur:SetPoint('LEFT', empower, 'RIGHT', 210, 0)
 
 	local gUholy = CreateFrame("CheckButton", "gUnholyCheck", frame, "OptionsCheckButtonTemplate");
 	_G[gUholy:GetName().."Text"]:SetText("Green Unholy");
