@@ -67,6 +67,8 @@ local runeBurst = {
 
 local inCombat = 0;
 
+DKIRunes_isRunicCorruptionOn = false;
+
 -- Saved Variable
 DKIRunes_Saved = {
 	artStyle = 1;
@@ -88,6 +90,7 @@ DKIRunes_Saved = {
 	counterScale = 1;
 	fade = false;
 	empower = true;
+	rc_blur = true;
 };
 
 function DKIRunes_LoadNewSavedVariables()
@@ -156,7 +159,13 @@ function DKIRunes_LoadNewSavedVariables()
 	end	
 	if(DKIRunes_Saved.swap == nil) then
 		DKIRunes_Saved.swap = 0;
-	end		
+	end
+	if(DKIRunes_Saved.empower == nil) then
+		DKIRunes_Saved.empower = true;
+	end
+	if(DKIRunes_Saved.rc_blur == nil) then
+		DKIRunes_Saved.rc_blur = true;
+	end
 end
 
 function DKIRunes_Rune_OnLoad(self)
@@ -194,6 +203,7 @@ function DKIRunes_OnLoad(self)
 		self:RegisterEvent("VARIABLES_LOADED");
 		self:RegisterEvent("PLAYER_ENTER_COMBAT");
 		self:RegisterEvent("PLAYER_LEAVE_COMBAT");
+		self:RegisterEvent("UNIT_AURA");
 
 		self:SetScript("OnEvent", DKIRunes_OnEvent);
 		
@@ -245,6 +255,27 @@ function DKIRunes_OnEvent (self, event, ...)
 			_G["Rune"..runeIndex].energize:Play();
 		end
 		
+	elseif ( event == "UNIT_AURA" ) then
+		local name = UnitAura("player", "Runic Corruption");
+		
+		--ChatFrame1:AddMessage(" rc: "..tostring(name) );		
+		
+		-- gained runic corruption
+		if  ( name ~= nil ) then
+		
+			if ( DKIRunes_isRunicCorruptionOn == false and DKIRunes_Saved.rc_blur ) then
+				DKIRunes_isRunicCorruptionOn = true;
+			end
+		
+		-- lost runic corruption
+		else
+		
+			if ( DKIRunes_isRunicCorruptionOn == true ) then
+				DKIRunes_isRunicCorruptionOn = false;
+			end
+
+		end
+	
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
 		DKIRunes_inCombat2 = 1;
@@ -252,6 +283,7 @@ function DKIRunes_OnEvent (self, event, ...)
 	elseif ( event == "PLAYER_LEAVE_COMBAT" ) then
 		inCombat = 0;
 		DKIRunes_inCombat2 = 0;
+		DKIRunes_isRunicCorruptionOn = false; -- HANZO; I'll put this safety here in the off-chance you disable it in the middle of runic corruption actually running.
 
 	end
 	
@@ -291,10 +323,41 @@ function DKIRunes_UpdateArt()
 	else
 		DKIRunes[RUNETYPE_UNHOLY] = altDKIRunes[RUNETYPE_UNHOLY]
 	end
+
 	if ( DKIRunes_Saved.purpleDeath ) then
 		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH2]
 	else
 		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH]
+	end
+
+end
+
+--set blur direction
+function DKIRunes_UpdateBlurDirection()
+
+	for rune = 1, 6 do
+		local frame = _G["Rune"..rune];
+		if ( DKIRunes_Saved.rotate == 0 ) then
+			_G["Rune"..rune.."RuneTrail1"]:SetPoint( 'CENTER', frame, 'CENTER', 0, 3 );
+			_G["Rune"..rune.."RuneTrail2"]:SetPoint( 'CENTER', frame, 'CENTER', 0, 6 );
+			_G["Rune"..rune.."RuneTrail3"]:SetPoint( 'CENTER', frame, 'CENTER', 0, 9 );
+			_G["Rune"..rune.."RuneTrail4"]:SetPoint( 'CENTER', frame, 'CENTER', 0, 12 );
+		elseif ( DKIRunes_Saved.rotate == 1 ) then
+			_G["Rune"..rune.."RuneTrail1"]:SetPoint( 'CENTER', frame, 'CENTER', 3, 0 );
+			_G["Rune"..rune.."RuneTrail2"]:SetPoint( 'CENTER', frame, 'CENTER', 6, 0 );
+			_G["Rune"..rune.."RuneTrail3"]:SetPoint( 'CENTER', frame, 'CENTER', 9, 0 );
+			_G["Rune"..rune.."RuneTrail4"]:SetPoint( 'CENTER', frame, 'CENTER', 12, 0 );
+		elseif ( DKIRunes_Saved.rotate == 2 ) then
+			_G["Rune"..rune.."RuneTrail1"]:SetPoint( 'CENTER', frame, 'CENTER', 0, -3 );
+			_G["Rune"..rune.."RuneTrail2"]:SetPoint( 'CENTER', frame, 'CENTER', 0, -6 );
+			_G["Rune"..rune.."RuneTrail3"]:SetPoint( 'CENTER', frame, 'CENTER', 0, -9 );
+			_G["Rune"..rune.."RuneTrail4"]:SetPoint( 'CENTER', frame, 'CENTER', 0, -12 );
+		else 
+			_G["Rune"..rune.."RuneTrail1"]:SetPoint( 'CENTER', frame, 'CENTER', -3, 0 );
+			_G["Rune"..rune.."RuneTrail2"]:SetPoint( 'CENTER', frame, 'CENTER', -6, 0 );
+			_G["Rune"..rune.."RuneTrail3"]:SetPoint( 'CENTER', frame, 'CENTER', -9, 0 );
+			_G["Rune"..rune.."RuneTrail4"]:SetPoint( 'CENTER', frame, 'CENTER', -12, 0 );
+		end
 	end
 
 end
@@ -427,12 +490,15 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 		local heroValue = percent * DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
 
 		if(percent >= 1) then
+
 			_G["Rune"..rune].energize:Stop();
+
 			if(DKIRunes_Saved.deadRune == 1) then
 				heroValue = DKIRunes_Saved.heroSlide * DKIRunes_Saved.heroOrigin;
 			elseif(DKIRunes_Saved.deadRune == 2) then
 				heroValue = 0;
 			end
+
 		end
 
 		local rawframe;
@@ -515,7 +581,7 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	local height = 0.0625;
 	local runeType = GetRuneType(rune);	
 	local texture = DKIRunes[runeType];
-	--local retexture = runeEnergizeTextures[runeType];
+	
 	--ChatFrame1:AddMessage(string.format("FrameX: %s, FrameY: %s, Rune: %s", frameX, frameY, rune));
 
 	_G["Rune"..rune]:Show();
@@ -523,7 +589,36 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 	_G["Rune"..rune.."Rune"]:Show();
 	_G["Rune"..rune.."Rune"]:SetTexture(texture);
 	_G["Rune"..rune.."Rune"]:SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);
+	
+	-- HANZO: New functionality to handle the "blurring" of runes during Runic Corruption
+	DKIRunes_SetBlur(rune, frameX, frameY);
+
 	--_G["Rune"..rune.."RuneColorGlow"]:SetTexture(retexture);
+end
+
+function DKIRunes_SetBlur(rune, frameX, frameY)
+	local width = 0.125;
+	local height = 0.0625;
+	local shadow = 0;
+	local runeType = GetRuneType(rune);	
+	local texture = DKIRunes[runeType];
+	
+	--ChatFrame1:AddMessage("is runic corruption on: "..tostring(DKIRunes_isRunicCorruptionOn) );	
+
+	if (DKIRunes_isRunicCorruptionOn) then
+		for shadow = 1,4 do
+			local shadowAlpha = (10 - (shadow * 2)) / 10;
+
+			_G["Rune"..rune.."RuneTrail"..shadow]:Show();
+			_G["Rune"..rune.."RuneTrail"..shadow]:SetAlpha(shadowAlpha);
+			_G["Rune"..rune.."RuneTrail"..shadow]:SetTexture(texture);		
+			_G["Rune"..rune.."RuneTrail"..shadow]:SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);	
+		end
+	else
+		for shadow = 1,4 do
+			_G["Rune"..rune.."RuneTrail"..shadow]:SetAlpha(0);
+		end
+	end
 end
 
 function DKIRunes_Rotate(spin)
@@ -601,6 +696,7 @@ function DKIRunes_Rotate(spin)
 	FixRPCounterLocation()
 	DKIRunes_UpdateArt();
 	DKIRunes_UpdateUI();
+	DKIRunes_UpdateBlurDirection();
 end
 
 function DKIRunes_Reset(frame)
@@ -636,6 +732,7 @@ function DKIRunes_Reset(frame)
 	DKIRunes_Saved.empower = true;
 	DKIRunes_Saved.greenUnholy = false;
 	DKIRunes_Saved.purpleDeath = false;
+	DKIRunes_Saved.rc_blur = true;
 
 	DKIRunesFrame:SetMovable(false)
 	DKIRunesFrame:EnableMouse(false)
