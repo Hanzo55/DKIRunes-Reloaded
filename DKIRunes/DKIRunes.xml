@@ -44,17 +44,50 @@
 					<Color r="0" g="1" b="0" a="0.0" />
 				</Texture>
 			</Layer>
-			<Layer level="ARTWORK" textureSublevel = "-2">
+			<Layer level="ARTWORK" textureSublevel="-2">
 				<Texture name="$parentRuneEmpower" file="Interface\AddOns\DKIRunes\empower" alpha="0">
-					<Size x="64" y="64"/>
+					<Size x="64" y="64" />
 					<Anchors>
 						<Anchor point="CENTER" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>
-			<Layer level="ARTWORK" textureSublevel = "-1">
+			<Layer level="ARTWORK" textureSublevel="-1">
 				<Texture name="$parentRune" file="Interface\AddOns\DKIRunes\Blood_Runes">
-					<Size x="32" y="32"/>
+					<Size x="32" y="32" />
+				</Texture>
+			</Layer>
+			
+			<Layer level="ARTWORK" textureSublevel="-2">
+				<Texture name="$parentRuneTrail1" file="Interface\AddOns\DKIRunes\Blood_Runes" alpha="0">
+					<Size x="32" y="32" />
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="3"/>
+					</Anchors>					
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSublevel="-2">
+				<Texture name="$parentRuneTrail2" file="Interface\AddOns\DKIRunes\Blood_Runes" alpha="0">
+					<Size x="32" y="32" />
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="6"/>
+					</Anchors>					
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSublevel="-2">
+				<Texture name="$parentRuneTrail3" file="Interface\AddOns\DKIRunes\Blood_Runes" alpha="0">
+					<Size x="32" y="32" />
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="9"/>
+					</Anchors>					
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSublevel="-2">
+				<Texture name="$parentRuneTrail4" file="Interface\AddOns\DKIRunes\Blood_Runes" alpha="0">
+					<Size x="32" y="32" />
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="12"/>
+					</Anchors>					
 				</Texture>
 			</Layer>
 
@@ -278,9 +311,6 @@
 			<OnLoad>
 				DKIRunes_OnLoad(self);
 			</OnLoad>
-			<!--<OnEvent>
-				DKIRunes_OnEvent(self);
-			</OnEvent>-->
 			<OnUpdate>
 				DKIRunes_OnUpdate(self, arg1);
 			</OnUpdate>
