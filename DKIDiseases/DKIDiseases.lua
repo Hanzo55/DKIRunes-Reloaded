@@ -473,24 +473,42 @@ end
 --end
 
 function DKIDiseases_Talents_Check()
-	_, _, _, _, SF_currentRank, _, _, _ = GetTalentInfo(1, 6);
 	
-	SF_currentRank = 0;
-	talents = GetSpecialization();
+	local talents = GetSpecialization();
 	
-	if (talents == 1) then
-		SF_currentRank = 1;
-	end
+	if (talents ~= nil) then
+	
+		-- HANZO: If it is a Blood DK...
+		if (talents == 1 and DKIDiseases_Saved.sf) then
 
-	if (SF_currentRank > 0 and DKIDiseases_Saved.sf) then
-		InitDisease(3, DISEASETYPE_SCARLETFEVER);
-		IncludeSF = true
+			InitDisease(3, DISEASETYPE_SCARLETFEVER);
+
+			-- HANZO: global flag for scarlet fever ON			
+			IncludeSF = true;
+
+		else
+
+			diseaseIcon[3][0]:Hide();
+			diseaseIcon[3][1]:Hide();
+			diseaseBar[3]:Hide();
+			
+			-- HANZO: global flag for scarlet fever OFF
+			IncludeSF = false;
+					
+		end
+		
 	else
-		IncludeSF = false
+	
+		-- HANZO: If DK is in the middle of respeccing, shut this stuff off
 		diseaseIcon[3][0]:Hide();
 		diseaseIcon[3][1]:Hide();
 		diseaseBar[3]:Hide();
+			
+		-- HANZO: global flag for scarlet fever OFF
+		IncludeSF = false;
+	
 	end
+
 end
 
 function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
