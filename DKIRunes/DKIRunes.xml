@@ -107,7 +107,7 @@
 	</Frame>
 
 	<!-- Background -->
-	<Frame name="DKIRunesFrame" frameStrata="BACKGROUND" toplevel="false" parent="UIParent" hidden="false">
+	<Frame name="DKIRunesFrame" toplevel="false" parent="UIParent" hidden="false">
 
 		<TitleRegion>
 			<Size>
