@@ -206,8 +206,8 @@ function DKIRunes_OnLoad(self)
 		self:RegisterEvent("UNIT_AURA");
 
 		self:SetScript("OnEvent", DKIRunes_OnEvent);
-		
 	end
+	
 end
 
 function DKIRunes_OnEvent (self, event, ...)
