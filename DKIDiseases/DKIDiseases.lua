@@ -1,50 +1,32 @@
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
-local DISEASETYPE_SCARLETFEVER = 4;
 
 local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
 
 local DKIDisease_Ring_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_ring_color",
-	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_ring_color",
 };
 
 local DKIDisease_Icons = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon",
-	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_icon",
 };
 
 local DKIDisease_Icon_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon_color",
-	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_icon_color",
 };
 
 local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
-	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_bar",
 };
-
 
 local DKIDisease_Inner_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_inner_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_inner_bar",
-	[DISEASETYPE_SCARLETFEVER] = "Interface\\AddOns\\DKIDiseases\\SF_inner_bar",
 };
-
-local DKIDiseaseStrata = {
-	"BACKGROUND",
-	"LOW",
-	"MEDIUM",
-	"HIGH",
-	"DIALOG",
-	"FULLSCREEN",
-	"FULLSCREEN_DIALOG",
-	"TOOLTIP"
-	}
 
 DKIDiseasesFrame = CreateFrame("Frame", "DKIDiseasesFrame", UIParent)
 
@@ -184,19 +166,16 @@ local pestTime = nil
 local diseaseDuration = 30	--HANZO: v5.0.4: diseases are baseline 30s now. No more Epidemic talent.
 local pest = {}
 local ap = {}
---local IncludeEW = nil
 local demo0Time = nil
 local demo1Time = nil
 local inCombat = 0
---local bar3 = 0;
-local IncludeEP = nil
 local IncludeSF = nil
+local IncludePV = nil
 local variablesLoaded;
 
 -- Saved Variables
 DKIDiseases_Saved = {
-	ep = true;
-	--sf = true;
+
 };
 
 function DKIDiseases_LoadNewSavedVariables()
@@ -373,7 +352,6 @@ function InitDisease(id, index)
 	
 	diseaseIcon[id][0]:ClearAllPoints()
 	diseaseIcon[id][0]:SetPoint(DKIDiseases_Saved.point[id], DKIDiseases_Saved.relativeTo[id], DKIDiseases_Saved.parentPoint[id], DKIDiseases_Saved.x[id], DKIDiseases_Saved.y[id])
---	diseaseIcon[id][0]:SetFrameStrata(DKIDiseaseStrata[DKIDiseases_Saved.strata]);
         diseaseIcon[id][0]:SetFrameLevel(2)
         diseaseIcon[id][0]:SetWidth(40)
         diseaseIcon[id][0]:SetHeight(40)
@@ -451,7 +429,6 @@ function InitDisease(id, index)
 		diseaseBarTexture[id][1]:SetTexCoord(1, 0, 1, 1, 2, 0, 2, 1);
 		diseaseBarTexture[id][1]:SetPoint("LEFT", diseaseBar[id], "LEFT", 0, 0)
 	end
---	diseaseBar[id]:SetFrameStrata(DKIDiseaseStrata[DKIDiseases_Saved.strata]);
 	diseaseBar[id]:SetFrameLevel(1)
 	if (DKIDiseases_Saved.rotate % 2 == 1) then
 		diseaseBar[id]:SetWidth(32)
@@ -485,10 +462,9 @@ function DKIDiseases_Talents_Check()
 		-- HANZO: If it is a Blood DK...
 		if (talents == 1) then
 
-			InitDisease(3, DISEASETYPE_SCARLETFEVER);
-
-			-- HANZO: global flag for scarlet fever ON			
+			-- HANZO: global flag for scarlet fever ON
 			IncludeSF = true;
+			IncludePV = false;
 
 		else
 
@@ -498,6 +474,7 @@ function DKIDiseases_Talents_Check()
 			
 			-- HANZO: global flag for scarlet fever OFF
 			IncludeSF = false;
+			IncludePV = true;
 					
 		end
 		
@@ -510,6 +487,7 @@ function DKIDiseases_Talents_Check()
 			
 		-- HANZO: global flag for scarlet fever OFF
 		IncludeSF = false;
+		IncludePV = false;
 	
 	end
 
@@ -517,21 +495,10 @@ end
 
 function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	
-	-- Pestilence
-	if(player == "player" and spell == GetSpellInfo(50842)) then
-		pestTime = GetTime();
-		DKIDiseases_UpdateIconAndBar(55078, 0);
-		DKIDiseases_UpdateIconAndBar(59921, 1);	
-		pestTime = nil;
-	end
-	
 	-- Plague Strike
 	if(player == "player" and spell == GetSpellInfo(45462)) then
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[0] = apBase + posBuff + negBuff;
-		if(IncludeSF) then
-			DKIDiseases_UpdateIconAndBar(115798, 3, true); --HANZO: Pass the spell id for Weakened Blows in MoP
-		end		
 	end
 	
 	-- Icy Touch
@@ -542,9 +509,8 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	
 	-- Howling Blast (which, if glyphed, would infect with Frost Fever)
 	if(player == "player" and spell == GetSpellInfo(49184)) then
-			local apBase, posBuff, negBuff = UnitAttackPower("player");
-			ap[1] = apBase + posBuff + negBuff;
-			DKIDiseases_UpdateIconAndBar(59921, 1);
+		local apBase, posBuff, negBuff = UnitAttackPower("player");
+		ap[1] = apBase + posBuff + negBuff;
 	end
 	
 	-- Festering Strike
@@ -559,8 +525,6 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	if (player == "player" and (spell == GetSpellInfo(115994))) then
 		local apBase, posBuff, negBuff = UnitAttackPower("player");
 		ap[1] = apBase + posBuff + negBuff;
-		DKIDiseases_UpdateIconAndBar(55078, 0);
-		DKIDiseases_UpdateIconAndBar(59921, 1);	
 	end
 
 end
@@ -608,8 +572,12 @@ function DKIDiseases_UpdateIconsAndBars()
 	DKIDiseases_UpdateIconAndBar(59921, 1); -- FROST FEVER
 
 	-- HANZO: Scarlet Fever now causes Weakened Blows to be applied to targets with Blood Plague
-	if(IncludeSF) then
-		DKIDiseases_UpdateIconAndBar(115798, 3); -- WEAKENED BLOWS
+	if (IncludeSF) then
+		DKIDiseases_UpdateIconAndBar(115798, 0, true); -- WEAKENED BLOWS
+	end
+
+	if (IncludePV) then
+		DKIDiseases_UpdateIconAndBar(81326, 1, true); -- PHYS VULN
 	end
 	
 	--	id = GetSpellID("Frost Fever");
@@ -629,11 +597,6 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 	if(demo0Input) then
 		demo0Time = demo0Input;
 	end
---[[
-	if(demo1Input) then
-		demo1Time = demo1Input;
-	end
---]]
 
 	if(demo0Time) then
 		local delta =  ( (demo0Time + speed) - GetTime() ) / speed;
@@ -650,52 +613,44 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 		end
 	end
 
---[[
-	if(demo1Time) then
-		local delta =  ( (demo1Time + speed) - GetTime() ) / speed;
-		for id=0, 3 do
-			DKIDiseases_Animate(id, delta, speed, 2)
-			DKIDiseases_Animate(id, 1, speed, 5)
-		end
-		if(delta <= 0) then
-			demo1Time = nil;
-			for id=0, 3 do
-				DKIDiseases_Animate(id, 0, speed, 5)
-			end
-		end
-	end
---]]
-
 end
 
-function DKIDiseases_UpdateIconAndBar(debuff, id)
-	DKIDiseases_UpdateIconAndBar(debuff, id, false)
-end
-
-function DKIDiseases_UpdateIconAndBar(debuff, id, forcePest)
+function DKIDiseases_UpdateIconAndBar(debuff, id, isDebuffComponent)
  	local i = GetSpellInfo(debuff);
-   	local _, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
+   	local name, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
 	local apBase, posBuff, negBuff = UnitAttackPower("player");
-
-	if(not duration or duration > 60) then
+	
+	if (isDebuffComponent == nil) then
+		isDebuffComponent = false;
+	end
+	
+	if (not duration or duration > 60) then
 		duration = diseaseDuration;
 	end
-	--ChatFrame1:AddMessage("endtime: "..tostring(endTime).." isMine: "..tostring(endTime));
 	
 	if(endTime and isMine == "player") then
+
 		local delta =  ( endTime - GetTime() ) / duration;
-		DKIDiseases_Animate(id, delta, duration, 1)
+		if (isDebuffComponent) then
+			DKIDiseases_Animate(id, delta, duration, 2)
+		else
+			DKIDiseases_Animate(id, delta, duration, 1)
+		end
 
 		if(delta > 0) then
-			DKIDiseases_Animate(id, 1, duration, 4)
+			if (isDebuffComponent) then
+				DKIDiseases_Animate(id, 1, duration, 5)
+			else
+				DKIDiseases_Animate(id, 1, duration, 4)
+			end
 		else
-			DKIDiseases_Animate(id, 0, duration, 4)
+			if (isDebuffComponent) then
+				DKIDiseases_Animate(id, 0, duration, 5)
+			else
+				DKIDiseases_Animate(id, 0, duration, 4)
+			end
 		end
 		
-		if(pestTime) then
-			pest[id] = pestTime + duration;
-		end
-
 		if(ap[id]) then
 			local currentAp = apBase + posBuff + negBuff
 			local delta = (ap[id] / currentAp) ^ 2
@@ -707,27 +662,15 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, forcePest)
 			end
 			DKIDiseases_Animate(id, delta, duration, 3)
 		end
+	
 	else
+	
 		DKIDiseases_Animate(id, 0, duration, 1)
-		DKIDiseases_Animate(id, 0, duration, 3)
+		DKIDiseases_Animate(id, 0, duration, 2)
 		DKIDiseases_Animate(id, 0, duration, 4)
+		DKIDiseases_Animate(id, 0, duration, 5)
+	
 	end
-
-	if(forcePest) then
-		pest[id] = GetTime() + duration;
-	end
-
-	if(pest[id]) then
---	ChatFrame1:AddMessage("pid:"..pest[id].."/time:"..GetTime().."/dur:"..diseaseDuration);
-		local delta =  ( pest[id] - GetTime() ) / duration;
-		DKIDiseases_Animate(id, delta, duration, 2)
-		DKIDiseases_Animate(id, 1, duration, 5)
-
-		if(delta <= 0) then
-			pest[id] = nil
-			DKIDiseases_Animate(id, 0, duration, 5)
-		end
-	end	
 
 end
 
