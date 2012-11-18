@@ -292,6 +292,7 @@ function DKIDiseases_OnLoad(self)
 		self:RegisterEvent("PLAYER_ENTERING_WORLD");
 		self:RegisterEvent("PLAYER_ALIVE");
 		self:RegisterEvent("PLAYER_TALENT_UPDATE");
+		self:RegisterEvent("PLAYER_DEAD");
 
 		DKIDiseasesFrame:SetScript("OnEvent", DKIDiseases_OnEvent)
 		DKIDiseasesFrame:SetScript("OnUpdate", DKIDiseases_OnUpdate)
@@ -334,6 +335,9 @@ function DKIDiseases_OnEvent(self, event, ...)
 		inCombat = 1;
 
 	elseif ( event == "PLAYER_LEAVE_COMBAT" ) then
+		inCombat = 0;
+		
+	elseif ( event == "PLAYER_DEAD" ) then
 		inCombat = 0;
 
 	end
