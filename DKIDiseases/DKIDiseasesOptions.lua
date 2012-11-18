@@ -50,7 +50,7 @@ function DKIDiseases_populateBlizzardOptions()
 	demo0:GetFontString():SetPoint("TOP", demo0, "TOP", 0, -6)
 	demo0:SetPoint('LEFT', fade, 'RIGHT', 125, 2)
 
-	local demo1 = CreateFrame("Button", "Demo1Button", frame, "OptionsButtonTemplate");
+--[[	local demo1 = CreateFrame("Button", "Demo1Button", frame, "OptionsButtonTemplate");
 	demo1:SetText("Pestilence Demo")
 	demo1:SetScript('OnClick', function() DKIDiseases_Demo1() end)
 	demo1:SetWidth(120);
@@ -67,6 +67,7 @@ function DKIDiseases_populateBlizzardOptions()
 	sfCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.sf) end)
 	sfCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.sf = self:GetChecked();DKIDiseases_Talents_Check() end)
 	sfCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
+--]]
 
 	local ringTitle = frame:CreateFontString("ringTitleString","ARTWORK","GameTooltipHeaderText");
 	ringTitle:SetText("Disease Rings and Icons")
@@ -286,9 +287,11 @@ function DKIDiseases_Demo0()
 	DKIDiseases_UpdateDemoIconsAndBars(GetTime(), nil); 
 end
 
+--[[
 function DKIDiseases_Demo1()
 	DKIDiseases_UpdateDemoIconsAndBars(nil, GetTime()); 
 end
+--]]
 
 function DKIDStrataSlider_ValueChanged(self, value)
 	DKIDiseases_Saved.strata = value;
