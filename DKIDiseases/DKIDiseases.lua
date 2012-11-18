@@ -196,7 +196,7 @@ local variablesLoaded;
 -- Saved Variables
 DKIDiseases_Saved = {
 	ep = true;
-	sf = true;
+	--sf = true;
 };
 
 function DKIDiseases_LoadNewSavedVariables()
@@ -479,7 +479,7 @@ function DKIDiseases_Talents_Check()
 	if (talents ~= nil) then
 	
 		-- HANZO: If it is a Blood DK...
-		if (talents == 1 and DKIDiseases_Saved.sf) then
+		if (talents == 1) then
 
 			InitDisease(3, DISEASETYPE_SCARLETFEVER);
 
@@ -540,7 +540,7 @@ function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	if(player == "player" and spell == GetSpellInfo(49184)) then
 			local apBase, posBuff, negBuff = UnitAttackPower("player");
 			ap[1] = apBase + posBuff + negBuff;
-			DKIDiseases_UpdateIconAndBar(59921, 1, true);
+			DKIDiseases_UpdateIconAndBar(59921, 1);
 	end
 	
 	-- Festering Strike
@@ -625,9 +625,11 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 	if(demo0Input) then
 		demo0Time = demo0Input;
 	end
+--[[
 	if(demo1Input) then
 		demo1Time = demo1Input;
 	end
+--]]
 
 	if(demo0Time) then
 		local delta =  ( (demo0Time + speed) - GetTime() ) / speed;
@@ -644,6 +646,7 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 		end
 	end
 
+--[[
 	if(demo1Time) then
 		local delta =  ( (demo1Time + speed) - GetTime() ) / speed;
 		for id=0, 3 do
@@ -657,6 +660,7 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 			end
 		end
 	end
+--]]
 
 end
 
@@ -859,7 +863,7 @@ function DKIDiseases_Reset()
 	DKIDiseases_Saved.fade = false;
 	DKIDiseases_Saved.rotate = 0;
 	DKIDiseases_Saved.ep = true;
-	DKIDiseases_Saved.sf = true;
+	--DKIDiseases_Saved.sf = true;
 	
 	for i=0, 3 do
 		diseaseIcon[i][0]:SetMovable(false)
