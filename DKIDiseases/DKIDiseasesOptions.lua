@@ -428,7 +428,7 @@ function IconTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.iconTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence"; 
+	info.text = "Disease Debuffs"; 
 	info.value = 2; 
 	info.func = IconTrack_OnClick
 	info.owner = self
@@ -449,7 +449,7 @@ function IconTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.iconTrack == 4); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence Active"; 
+	info.text = "Disease Debuffs Active"; 
 	info.value = 5; 
 	info.func = IconTrack_OnClick
 	info.owner = self
@@ -519,7 +519,7 @@ function BladeTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.bladeTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence"; 
+	info.text = "Disease Debuffs"; 
 	info.value = 2; 
 	info.func = BladeTrack_OnClick
 	info.owner = self
@@ -566,7 +566,7 @@ function BarTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.barTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence"; 
+	info.text = "Disease Debuffs"; 
 	info.value = 2; 
 	info.func = BarTrack_OnClick
 	info.owner = self
