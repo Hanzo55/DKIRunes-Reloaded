@@ -224,10 +224,10 @@ function DKIDiseases_populateBlizzardOptions()
 
 	local diseaseTimerLocTitle = timerFrame:CreateFontString("diseaseTimerLocTitleString","ARTWORK","GameFontNormal");
 	diseaseTimerLocTitle:SetText("Disease")
-	diseaseTimerLocTitle:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 20, -12)
+	diseaseTimerLocTitle:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 58, -12)
 
 	diseaseTimerLoc = CreateFrame("Frame", "DKIDTimerLoc", timerFrame, "UIDropDownMenuTemplate"); 
-	diseaseTimerLoc:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 61, -5)
+	diseaseTimerLoc:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 99, -5)
 	UIDropDownMenu_Initialize(diseaseTimerLoc, DKIDTimerLoc_Initialise)
 
 	local timerScaleSliderTitle = timerFrame:CreateFontString("TimerScaleSliderString","ARTWORK","GameFontNormal");
@@ -245,7 +245,7 @@ function DKIDiseases_populateBlizzardOptions()
 	timerScaleSlider:SetPoint('LEFT', TimerScaleSliderString, 'RIGHT', 10, 0)
 
 	local pestilenceTimerLocTitle = timerFrame:CreateFontString("pestilenceTimerLocTitle","ARTWORK","GameFontNormal");
-	pestilenceTimerLocTitle:SetText("Pestilence")
+	pestilenceTimerLocTitle:SetText("Disease Debuffs")
 	pestilenceTimerLocTitle:SetPoint('TOPLEFT', timerTitle, 'BOTTOMLEFT', 4, -41)
 
 	pestilenceTimerLoc = CreateFrame("Frame", "DKIPTimerLoc", timerFrame, "UIDropDownMenuTemplate"); 
@@ -337,7 +337,7 @@ function RingTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.ringTrack == 1); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence"; 
+	info.text = "Disease Debuffs"; 
 	info.value = 2; 
 	info.func = RingTrack_OnClick
 	info.owner = self 
@@ -358,7 +358,7 @@ function RingTrack_Initialise(self)
 	info.checked = (DKIDiseases_Saved.ringTrack == 4); 
 	UIDropDownMenu_AddButton(info, level);
 	 
-	info.text = "Pestilence Active"; 
+	info.text = "Disease Debuffs Active"; 
 	info.value = 5; 
 	info.func = RingTrack_OnClick
 	info.owner = self
