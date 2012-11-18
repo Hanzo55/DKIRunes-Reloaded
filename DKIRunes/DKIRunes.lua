@@ -203,6 +203,7 @@ function DKIRunes_OnLoad(self)
 		self:RegisterEvent("VARIABLES_LOADED");
 		self:RegisterEvent("PLAYER_ENTER_COMBAT");
 		self:RegisterEvent("PLAYER_LEAVE_COMBAT");
+		self:RegisterEvent("PLAYER_DEAD");
 		self:RegisterEvent("UNIT_AURA");
 
 		self:SetScript("OnEvent", DKIRunes_OnEvent);
@@ -281,6 +282,11 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunes_inCombat2 = 1;
 
 	elseif ( event == "PLAYER_LEAVE_COMBAT" ) then
+		inCombat = 0;
+		DKIRunes_inCombat2 = 0;
+		DKIRunes_isRunicCorruptionOn = false; -- HANZO; I'll put this safety here in the off-chance you disable it in the middle of runic corruption actually running.
+		
+	elseif ( event == "PLAYER_DEAD" ) then
 		inCombat = 0;
 		DKIRunes_inCombat2 = 0;
 		DKIRunes_isRunicCorruptionOn = false; -- HANZO; I'll put this safety here in the off-chance you disable it in the middle of runic corruption actually running.
