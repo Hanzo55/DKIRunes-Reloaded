@@ -1,31 +1,43 @@
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
+local DISEASETYPE_WEAKENEDBLOWS = 4;
+local DISEASETYPE_PHYSICALVULN = 8;
 
 local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
 
 local DKIDisease_Ring_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_ring_color",
+	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_ring_color",	
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_ring_color",	
 };
 
 local DKIDisease_Icons = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon",
+	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_icon",	
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon",	
 };
 
 local DKIDisease_Icon_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon_color",
+	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_icon_color",	
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon_color",	
 };
 
 local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
+	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_bar",
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon_color",		
 };
 
 local DKIDisease_Inner_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_inner_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_inner_bar",
+	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_inner_bar",	
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_inner_bar",	
 };
 
 DKIDiseasesFrame = CreateFrame("Frame", "DKIDiseasesFrame", UIParent)
@@ -162,14 +174,12 @@ diseaseBarTexture[3] = {}
 diseaseBarTexture[3][0] = diseaseBar[3]:CreateTexture("DKIDiseasesBar30", "BACKGROUND")
 diseaseBarTexture[3][1] = diseaseBar[3]:CreateTexture("DKIDiseasesBar31", "BORDER")
 
-local pestTime = nil
 local diseaseDuration = 30	--HANZO: v5.0.4: diseases are baseline 30s now. No more Epidemic talent.
-local pest = {}
 local ap = {}
 local demo0Time = nil
 local demo1Time = nil
 local inCombat = 0
-local IncludeSF = nil
+local IncludeWB = nil
 local IncludePV = nil
 local variablesLoaded;
 
@@ -324,8 +334,8 @@ function DKIDiseases_OnEvent(self, event, ...)
 end
 
 function DKIDiseases_UpdateUI()
-	InitDisease(0, DISEASETYPE_BLOODPLAGUE);
-	InitDisease(1, DISEASETYPE_FROSTFEVER);
+	InitDisease(0, DISEASETYPE_BLOODPLAGUE); --HANZO: Pointing out that this done via convenience, it equates to 1, but has nothing to with the assets themselves
+	InitDisease(1, DISEASETYPE_FROSTFEVER); --HANZO: Pointing out that this done via convenience, it equates to 2, but has nothing to with the assets themselves
 	DKIDiseases_Talents_Check();
 
 	for id=0, 3 do
@@ -345,91 +355,207 @@ function DKIDiseases_UpdateUI()
 
 end
 
+function DKIDiseases_GetSettings(index)
+
+	local ring_color, icon, icon_color, blade, bar = 0, 0, 0, 0, 0; --Hanzo: blade is outside, bar is inside
+
+	--HANZO: In this rev, there's only two indexes: 1 for frame 1 (blood plague) and 2 for frame 2 (frost fever)
+	--if you add new frames for Necrotic Strike, Soul Reaper, etc, you'll need another "switch" for that index in here
+	if (index == DISEASETYPE_BLOODPLAGUE) then
+
+		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
+			ring_color = DISEASETYPE_BLOODPLAGUE;
+		elseif (DKIDiseases_Saved.ringTrack == 2 or DKIDiseases_Saved.ringTrack == 5) then
+			ring_color = DISEASETYPE_WEAKENEDBLOWS;
+		elseif (DKIDiseases_Saved.ringTrack ~= 0) then
+			ring_color = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
+			icon = DISEASETYPE_BLOODPLAGUE;
+			icon_color = DISEASETYPE_BLOODPLAGUE;
+		elseif (DKIDiseases_Saved.iconTrack == 2 or DKIDiseases_Saved.iconTrack == 5) then
+			icon = DISEASETYPE_WEAKENEDBLOWS;
+			icon_color = DISEASETYPE_WEAKENEDBLOWS;
+		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
+			icon = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
+			icon_color = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
+		end
+
+		if (DKIDiseases_Saved.bladeTrack == 1 or DKIDiseases_Saved.bladeTrack == 4) then
+			blade = DISEASETYPE_BLOODPLAGUE;
+		elseif (DKIDiseases_Saved.bladeTrack == 2 or DKIDiseases_Saved.bladeTrack == 5) then
+			blade = DISEASETYPE_WEAKENEDBLOWS;
+		elseif (DKIDiseases_Saved.bladeTrack ~= 0) then
+			blade = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.barTrack == 1 or DKIDiseases_Saved.barTrack == 4) then
+			bar = DISEASETYPE_BLOODPLAGUE;
+		elseif (DKIDiseases_Saved.barTrack == 2 or DKIDiseases_Saved.barTrack == 5) then
+			bar = DISEASETYPE_WEAKENEDBLOWS;
+		elseif (DKIDiseases_Saved.barTrack ~= 0) then
+			bar = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
+		end
+	
+	elseif (index == DISEASETYPE_FROSTFEVER) then
+		
+		-- Frost Fever
+	
+		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
+			ring_color = DISEASETYPE_FROSTFEVER;
+		elseif (DKIDiseases_Saved.ringTrack == 2 or DKIDiseases_Saved.ringTrack == 5) then
+			ring_color = DISEASETYPE_PHYSICALVULN;
+		elseif (DKIDiseases_Saved.ringTrack ~= 0) then
+			ring_color = DISEASETYPE_FROSTFEVER; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
+			icon = DISEASETYPE_FROSTFEVER;
+			icon_color =DISEASETYPE_FROSTFEVER;
+		elseif (DKIDiseases_Saved.iconTrack == 2 or DKIDiseases_Saved.iconTrack == 5) then
+			icon = DISEASETYPE_PHYSICALVULN;
+			icon_color = DISEASETYPE_PHYSICALVULN;
+		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
+			icon = DISEASETYPE_FROSTFEVER; -- (DoT AP)
+			icon_color = DISEASETYPE_FROSTFEVER; -- (DoT AP)
+		end
+
+		if (DKIDiseases_Saved.bladeTrack == 1 or DKIDiseases_Saved.bladeTrack == 4) then
+			blade = DISEASETYPE_FROSTFEVER;
+		elseif (DKIDiseases_Saved.bladeTrack == 2 or DKIDiseases_Saved.bladeTrack == 5) then
+			blade = DISEASETYPE_PHYSICALVULN;
+		elseif (DKIDiseases_Saved.bladeTrack ~= 0) then
+			blade = DISEASETYPE_FROSTFEVER; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.barTrack == 1 or DKIDiseases_Saved.barTrack == 4) then
+			bar = DISEASETYPE_FROSTFEVER;
+		elseif (DKIDiseases_Saved.barTrack == 2 or DKIDiseases_Saved.barTrack == 5) then
+			bar = DISEASETYPE_PHYSICALVULN;
+		elseif (DKIDiseases_Saved.barTrack ~= 0) then
+			bar = DISEASETYPE_FROSTFEVER; -- (DoT AP)
+		end
+
+	end
+	
+	--ChatFrame1:AddMessage("DEBUG Frame "..index..": Ring Color: "..ring_color..", Icon: "..icon..", Icon Color: "..icon_color..", Blade: "..blade..", Bar: "..bar);	
+	return ring_color, icon, icon_color, blade, bar;
+
+end
+
 function InitDisease(id, index)
+
+	--HANZO: *New*: Based on the index of the frame we're updating, we now change the icons based on the settings in the addon (ie. outer bar:frost fever=blue, inner bar:physical vuln=teal)
+	ringColorIndex, iconIndex, iconColorIndex, bladeIndex, barIndex = DKIDiseases_GetSettings(index);
+
+
 	if(DKIDiseases_Saved.y[id] == nil) then
 		DKIDiseases_ResetLocation(id);
 	end
 	
 	diseaseIcon[id][0]:ClearAllPoints()
+	
 	diseaseIcon[id][0]:SetPoint(DKIDiseases_Saved.point[id], DKIDiseases_Saved.relativeTo[id], DKIDiseases_Saved.parentPoint[id], DKIDiseases_Saved.x[id], DKIDiseases_Saved.y[id])
-        diseaseIcon[id][0]:SetFrameLevel(2)
-        diseaseIcon[id][0]:SetWidth(40)
-        diseaseIcon[id][0]:SetHeight(40)
-        diseaseIcon[id][0]:SetScale(DKIDiseases_Saved.iconScale)
+    diseaseIcon[id][0]:SetFrameLevel(2)
+    diseaseIcon[id][0]:SetWidth(40)
+    diseaseIcon[id][0]:SetHeight(40)
+    diseaseIcon[id][0]:SetScale(DKIDiseases_Saved.iconScale)
+	
 	diseaseIconTexture[id][0][0]:SetTexture(DKIDisease_Ring);
-        diseaseIconTexture[id][0][0]:SetAllPoints(diseaseIcon[id][0])
+	diseaseIconTexture[id][0][0]:SetAllPoints(diseaseIcon[id][0])
 	diseaseIconTexture[id][0][0]:SetTexCoord(0.1875, 0.8125, 0.1875, 0.8125)
+	
 	if(DKIDiseases_Saved.ringSil < 2) then
 		diseaseIconTexture[id][0][0]:Hide();
 	end
-	diseaseIconTexture[id][0][1]:SetTexture(DKIDisease_Ring_Colors[index]);
-        diseaseIconTexture[id][0][1]:SetAllPoints(diseaseIcon[id][0])
+
+	diseaseIconTexture[id][0][1]:SetTexture(DKIDisease_Ring_Colors[ringColorIndex]);
+	diseaseIconTexture[id][0][1]:SetAllPoints(diseaseIcon[id][0])
 	diseaseIconTexture[id][0][1]:SetTexCoord(0.1875, 0.8125, 0.1875, 0.8125)
-        diseaseIconTexture[id][0][1]:Hide();
-        diseaseIcon[id][0]:Show();
+	diseaseIconTexture[id][0][1]:Hide();
+	
+	diseaseIcon[id][0]:Show();
 
 	diseaseIcon[id][1]:ClearAllPoints()
 	diseaseIcon[id][1]:SetPoint("CENTER", diseaseIcon[id][0], "CENTER", 0, 0)
-        diseaseIcon[id][1]:SetFrameLevel(2)
-        diseaseIcon[id][1]:SetWidth(28)
-        diseaseIcon[id][1]:SetHeight(28)
-	diseaseIconTexture[id][1][0]:SetTexture(DKIDisease_Icons[index]);
-        diseaseIconTexture[id][1][0]:SetAllPoints(diseaseIcon[id][1])
+    diseaseIcon[id][1]:SetFrameLevel(2)
+    diseaseIcon[id][1]:SetWidth(28)
+    diseaseIcon[id][1]:SetHeight(28)
+
+	diseaseIconTexture[id][1][0]:SetTexture(DKIDisease_Icons[iconIndex]);
+	diseaseIconTexture[id][1][0]:SetAllPoints(diseaseIcon[id][1])
 	diseaseIconTexture[id][1][0]:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
+	
 	if(DKIDiseases_Saved.iconSil < 2) then
 		diseaseIconTexture[id][1][0]:Hide();
 	end
-	diseaseIconTexture[id][1][1]:SetTexture(DKIDisease_Icon_Colors[index]);
-        diseaseIconTexture[id][1][1]:SetAllPoints(diseaseIcon[id][1])
+	
+	diseaseIconTexture[id][1][1]:SetTexture(DKIDisease_Icon_Colors[iconColorIndex]);
+	diseaseIconTexture[id][1][1]:SetAllPoints(diseaseIcon[id][1])
+
 	diseaseIconTexture[id][1][1]:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
-        diseaseIconTexture[id][1][1]:Hide();
-        diseaseIcon[id][1]:Show();
+	diseaseIconTexture[id][1][1]:Hide();
+	diseaseIcon[id][1]:Show();
 
 	diseaseIcon[id][2]:ClearAllPoints()
-        diseaseIcon[id][2]:SetFrameLevel(3)
-        diseaseIcon[id][2]:SetWidth(40)
-        diseaseIcon[id][2]:SetHeight(40)
+    diseaseIcon[id][2]:SetFrameLevel(3)
+    diseaseIcon[id][2]:SetWidth(40)
+    diseaseIcon[id][2]:SetHeight(40)
+
 	diseaseIconFont[id][2]:SetFontObject(CombatLogFont)
 	diseaseIconFont[id][2]:SetTextColor(1.0,1.0,1.0,1.0)
 	diseaseIconFont[id][2]:SetPoint('CENTER', diseaseIcon[id][2], 'CENTER', 0, 0)
 	diseaseIconFont[id][2]:Show();
 
 	diseaseIcon[id][3]:ClearAllPoints()
-        diseaseIcon[id][3]:SetFrameLevel(3)
-        diseaseIcon[id][3]:SetWidth(40)
-        diseaseIcon[id][3]:SetHeight(40)
+    diseaseIcon[id][3]:SetFrameLevel(3)
+    diseaseIcon[id][3]:SetWidth(40)
+    diseaseIcon[id][3]:SetHeight(40)
+
 	diseaseIconFont[id][3]:SetFontObject(CombatLogFont)
 	diseaseIconFont[id][3]:SetTextColor(1.0,1.0,1.0,1.0)
 	diseaseIconFont[id][3]:SetPoint('CENTER', diseaseIcon[id][3], 'CENTER', 0, 0)
 	diseaseIconFont[id][3]:Show();
 
 	diseaseBar[id]:ClearAllPoints()
+
 	if (DKIDiseases_Saved.rotate == 1) then
+
 		diseaseBar[id]:SetPoint("TOP", diseaseIcon[id][0], "CENTER", 0, -DKIDiseases_Saved.barOffset)
 		diseaseBarTexture[id][0]:SetTexCoord(1, 1, 2, 1, 1, 0, 2, 0);
 		diseaseBarTexture[id][0]:SetPoint("TOP", diseaseBar[id], "TOP", 0, 0)
 		diseaseBarTexture[id][1]:SetTexCoord(1, 1, 2, 1, 1, 0, 2, 0);
 		diseaseBarTexture[id][1]:SetPoint("TOP", diseaseBar[id], "TOP", 0, 0)
+
 	elseif (DKIDiseases_Saved.rotate == 2) then
+		
 		diseaseBar[id]:SetPoint("RIGHT", diseaseIcon[id][0], "CENTER", -DKIDiseases_Saved.barOffset, 0)
 		diseaseBarTexture[id][0]:SetTexCoord(2, 1, 2, 0, 1, 1, 1, 0);
 		diseaseBarTexture[id][0]:SetPoint("RIGHT", diseaseBar[id], "RIGHT", 0, 0)
 		diseaseBarTexture[id][1]:SetTexCoord(2, 1, 2, 0, 1, 1, 1, 0);
 		diseaseBarTexture[id][1]:SetPoint("RIGHT", diseaseBar[id], "RIGHT", 0, 0)
+	
 	elseif (DKIDiseases_Saved.rotate == 3) then
+		
 		diseaseBar[id]:SetPoint("BOTTOM", diseaseIcon[id][0], "CENTER", 0, DKIDiseases_Saved.barOffset)
 		diseaseBarTexture[id][0]:SetTexCoord(2, 0, 1, 0, 2, 1, 1, 1);
 		diseaseBarTexture[id][0]:SetPoint("BOTTOM", diseaseBar[id], "BOTTOM", 0, 0)
 		diseaseBarTexture[id][1]:SetTexCoord(2, 0, 1, 0, 2, 1, 1, 1);
 		diseaseBarTexture[id][1]:SetPoint("BOTTOM", diseaseBar[id], "BOTTOM", 0, 0)
+	
 	else
+		
 		diseaseBar[id]:SetPoint("LEFT", diseaseIcon[id][0], "CENTER", DKIDiseases_Saved.barOffset, 0)
 		diseaseBarTexture[id][0]:SetTexCoord(1, 0, 1, 1, 2, 0, 2, 1);
 		diseaseBarTexture[id][0]:SetPoint("LEFT", diseaseBar[id], "LEFT", 0, 0)
 		diseaseBarTexture[id][1]:SetTexCoord(1, 0, 1, 1, 2, 0, 2, 1);
 		diseaseBarTexture[id][1]:SetPoint("LEFT", diseaseBar[id], "LEFT", 0, 0)
+	
 	end
+	
 	diseaseBar[id]:SetFrameLevel(1)
+	
 	if (DKIDiseases_Saved.rotate % 2 == 1) then
 		diseaseBar[id]:SetWidth(32)
 		diseaseBar[id]:SetHeight(256)
@@ -437,16 +563,22 @@ function InitDisease(id, index)
 		diseaseBar[id]:SetWidth(256)
 		diseaseBar[id]:SetHeight(32)
 	end
-        diseaseBar[id]:SetScale(DKIDiseases_Saved.barScale)
-	diseaseBarTexture[id][0]:SetTexture(DKIDisease_Inner_Bars[index]);
-        diseaseBarTexture[id][0]:SetAllPoints(diseaseBar[id])
+    
+	diseaseBar[id]:SetScale(DKIDiseases_Saved.barScale)
+	
+	diseaseBarTexture[id][0]:SetTexture(DKIDisease_Inner_Bars[barIndex]);
+	diseaseBarTexture[id][0]:SetAllPoints(diseaseBar[id])
 	diseaseBarTexture[id][0]:SetAlpha(DKIDiseases_Saved.barAlpha);
-	diseaseBarTexture[id][1]:SetTexture(DKIDisease_Bars[index]);
-        diseaseBarTexture[id][1]:SetAllPoints(diseaseBar[id])
+
+	diseaseBarTexture[id][1]:SetTexture(DKIDisease_Bars[bladeIndex]);
+	diseaseBarTexture[id][1]:SetAllPoints(diseaseBar[id])
 	diseaseBarTexture[id][1]:SetAlpha(DKIDiseases_Saved.bladeAlpha);
+
 	diseaseBarTexture[id][0]:Show();
-        diseaseBarTexture[id][1]:Show();
-        diseaseBar[id]:Show();
+	diseaseBarTexture[id][1]:Show();
+
+	diseaseBar[id]:Show();
+
 end
 
 --function DKIDiseases:UNIT_SPELLCAST_SENT( player, spell, rank, target)
@@ -463,7 +595,7 @@ function DKIDiseases_Talents_Check()
 		if (talents == 1) then
 
 			-- HANZO: global flag for scarlet fever ON
-			IncludeSF = true;
+			IncludeWB = true;
 			IncludePV = false;
 
 		else
@@ -473,7 +605,7 @@ function DKIDiseases_Talents_Check()
 			diseaseBar[3]:Hide();
 			
 			-- HANZO: global flag for scarlet fever OFF
-			IncludeSF = false;
+			IncludeWB = false;
 			IncludePV = true;
 					
 		end
@@ -486,7 +618,7 @@ function DKIDiseases_Talents_Check()
 		diseaseBar[3]:Hide();
 			
 		-- HANZO: global flag for scarlet fever OFF
-		IncludeSF = false;
+		IncludeWB = false;
 		IncludePV = false;
 	
 	end
@@ -572,7 +704,7 @@ function DKIDiseases_UpdateIconsAndBars()
 	DKIDiseases_UpdateIconAndBar(59921, 1); -- FROST FEVER
 
 	-- HANZO: Scarlet Fever now causes Weakened Blows to be applied to targets with Blood Plague
-	if (IncludeSF) then
+	if (IncludeWB) then
 		DKIDiseases_UpdateIconAndBar(115798, 0, true); -- WEAKENED BLOWS
 	end
 
