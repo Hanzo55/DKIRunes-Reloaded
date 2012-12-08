@@ -30,7 +30,7 @@ local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
 	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_bar",
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon_color",		
+	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_bar",		
 };
 
 local DKIDisease_Inner_Bars = {
@@ -748,21 +748,45 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 end
 
 function DKIDiseases_UpdateIconAndBar(debuff, id, isDebuffComponent)
+	local debuff_found = nil;
  	local i = GetSpellInfo(debuff);
-   	local name, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', i)
 	local apBase, posBuff, negBuff = UnitAttackPower("player");
 	
 	if (isDebuffComponent == nil) then
 		isDebuffComponent = false;
 	end
 	
-	if (not duration or duration > 60) then
-		duration = diseaseDuration;
+	for d=1,40 do
+		debuff_name, _, _, _, _, duration, debuff_endTime, debuff_owner = UnitDebuff('target', d)
+		
+		if ( not debuff_name ) then
+			break
+		end
+
+		if ( debuff_name == i ) then
+				
+			if ( debuff_owner == "player" ) then
+				debuff_found = d;
+				break
+			end
+			
+		end
 	end
 	
-	if(endTime and isMine == "player") then
+	if (not duration or duration > 60) then
+		duration = diseaseDuration;
+	end	
+	
+	if ( debuff_found ) then
+	
+		local name, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', debuff_found)
+		
+		if (not duration or duration > 60) then
+			duration = diseaseDuration;
+		end		
 
-		local delta =  ( endTime - GetTime() ) / duration;
+		local delta = ( endTime - GetTime() ) / duration;
+
 		if (isDebuffComponent) then
 			DKIDiseases_Animate(id, delta, duration, 2)
 		else
@@ -797,10 +821,13 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, isDebuffComponent)
 	
 	else
 	
-		DKIDiseases_Animate(id, 0, duration, 1)
-		DKIDiseases_Animate(id, 0, duration, 2)
-		DKIDiseases_Animate(id, 0, duration, 4)
-		DKIDiseases_Animate(id, 0, duration, 5)
+		if (isDebuffComponent) then
+			DKIDiseases_Animate(id, 0, duration, 2)
+			DKIDiseases_Animate(id, 0, duration, 5)
+		else
+			DKIDiseases_Animate(id, 0, duration, 1)
+			DKIDiseases_Animate(id, 0, duration, 4)
+		end
 	
 	end
 
