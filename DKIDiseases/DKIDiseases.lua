@@ -1,43 +1,31 @@
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
-local DISEASETYPE_WEAKENEDBLOWS = 4;
-local DISEASETYPE_PHYSICALVULN = 8;
 
 local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
 
 local DKIDisease_Ring_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_ring_color",
-	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_ring_color",	
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_ring_color",	
 };
 
 local DKIDisease_Icons = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon",
-	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_icon",	
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon",	
 };
 
 local DKIDisease_Icon_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon_color",
-	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_icon_color",	
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_icon_color",	
 };
 
 local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
-	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_bar",
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_bar",		
 };
 
 local DKIDisease_Inner_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_inner_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_inner_bar",
-	[DISEASETYPE_WEAKENEDBLOWS] = "Interface\\AddOns\\DKIDiseases\\WB_inner_bar",	
-	[DISEASETYPE_PHYSICALVULN] = "Interface\\AddOns\\DKIDiseases\\PV_inner_bar",	
 };
 
 DKIDiseasesFrame = CreateFrame("Frame", "DKIDiseasesFrame", UIParent)
@@ -179,8 +167,6 @@ local ap = {}
 local demo0Time = nil
 local demo1Time = nil
 local inCombat = 0
-local IncludeWB = nil
-local IncludePV = nil
 local variablesLoaded;
 
 -- Saved Variables
@@ -311,15 +297,6 @@ function DKIDiseases_OnEvent(self, event, ...)
 	elseif (event == "UNIT_SPELLCAST_SUCCEEDED") then
 		DKIDiseases_UNIT_SPELLCAST_SUCCEEDED(...)
 
-	elseif (event == "CHARACTER_POINTS_CHANGED") then
-		DKIDiseases_Talents_Check();
-
-	elseif ( event == "PLAYER_ALIVE" ) then
-		DKIDiseases_Talents_Check();
-
-	elseif ( event == "PLAYER_TALENT_UPDATE" ) then
-		DKIDiseases_Talents_Check();
-
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
 
@@ -336,7 +313,6 @@ end
 function DKIDiseases_UpdateUI()
 	InitDisease(0, DISEASETYPE_BLOODPLAGUE); --HANZO: Pointing out that this done via convenience, it equates to 1, but has nothing to with the assets themselves
 	InitDisease(1, DISEASETYPE_FROSTFEVER); --HANZO: Pointing out that this done via convenience, it equates to 2, but has nothing to with the assets themselves
-	DKIDiseases_Talents_Check();
 
 	for id=0, 3 do
 		if(DKIDiseases_Saved.ringSil == 2) then
@@ -360,13 +336,11 @@ function DKIDiseases_GetSettings(index)
 	local ring_color, icon, icon_color, blade, bar = 0, 0, 0, 0, 0; --Hanzo: blade is outside, bar is inside
 
 	--HANZO: In this rev, there's only two indexes: 1 for frame 1 (blood plague) and 2 for frame 2 (frost fever)
-	--if you add new frames for Necrotic Strike, Soul Reaper, etc, you'll need another "switch" for that index in here
+	--if you add new frames for Soul Reaper, Death and Decay etc, you'll need another "switch" for that index in here
 	if (index == DISEASETYPE_BLOODPLAGUE) then
 
 		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
 			ring_color = DISEASETYPE_BLOODPLAGUE;
-		elseif (DKIDiseases_Saved.ringTrack == 2 or DKIDiseases_Saved.ringTrack == 5) then
-			ring_color = DISEASETYPE_WEAKENEDBLOWS;
 		elseif (DKIDiseases_Saved.ringTrack ~= 0) then
 			ring_color = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
 		end
@@ -374,9 +348,6 @@ function DKIDiseases_GetSettings(index)
 		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
 			icon = DISEASETYPE_BLOODPLAGUE;
 			icon_color = DISEASETYPE_BLOODPLAGUE;
-		elseif (DKIDiseases_Saved.iconTrack == 2 or DKIDiseases_Saved.iconTrack == 5) then
-			icon = DISEASETYPE_WEAKENEDBLOWS;
-			icon_color = DISEASETYPE_WEAKENEDBLOWS;
 		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
 			icon = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
 			icon_color = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
@@ -384,16 +355,12 @@ function DKIDiseases_GetSettings(index)
 
 		if (DKIDiseases_Saved.bladeTrack == 1 or DKIDiseases_Saved.bladeTrack == 4) then
 			blade = DISEASETYPE_BLOODPLAGUE;
-		elseif (DKIDiseases_Saved.bladeTrack == 2 or DKIDiseases_Saved.bladeTrack == 5) then
-			blade = DISEASETYPE_WEAKENEDBLOWS;
 		elseif (DKIDiseases_Saved.bladeTrack ~= 0) then
 			blade = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
 		end
 		
 		if (DKIDiseases_Saved.barTrack == 1 or DKIDiseases_Saved.barTrack == 4) then
 			bar = DISEASETYPE_BLOODPLAGUE;
-		elseif (DKIDiseases_Saved.barTrack == 2 or DKIDiseases_Saved.barTrack == 5) then
-			bar = DISEASETYPE_WEAKENEDBLOWS;
 		elseif (DKIDiseases_Saved.barTrack ~= 0) then
 			bar = DISEASETYPE_BLOODPLAGUE; -- (DoT AP)
 		end
@@ -404,8 +371,6 @@ function DKIDiseases_GetSettings(index)
 	
 		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
 			ring_color = DISEASETYPE_FROSTFEVER;
-		elseif (DKIDiseases_Saved.ringTrack == 2 or DKIDiseases_Saved.ringTrack == 5) then
-			ring_color = DISEASETYPE_PHYSICALVULN;
 		elseif (DKIDiseases_Saved.ringTrack ~= 0) then
 			ring_color = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 		end
@@ -413,9 +378,6 @@ function DKIDiseases_GetSettings(index)
 		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
 			icon = DISEASETYPE_FROSTFEVER;
 			icon_color =DISEASETYPE_FROSTFEVER;
-		elseif (DKIDiseases_Saved.iconTrack == 2 or DKIDiseases_Saved.iconTrack == 5) then
-			icon = DISEASETYPE_PHYSICALVULN;
-			icon_color = DISEASETYPE_PHYSICALVULN;
 		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
 			icon = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 			icon_color = DISEASETYPE_FROSTFEVER; -- (DoT AP)
@@ -423,16 +385,12 @@ function DKIDiseases_GetSettings(index)
 
 		if (DKIDiseases_Saved.bladeTrack == 1 or DKIDiseases_Saved.bladeTrack == 4) then
 			blade = DISEASETYPE_FROSTFEVER;
-		elseif (DKIDiseases_Saved.bladeTrack == 2 or DKIDiseases_Saved.bladeTrack == 5) then
-			blade = DISEASETYPE_PHYSICALVULN;
 		elseif (DKIDiseases_Saved.bladeTrack ~= 0) then
 			blade = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 		end
 		
 		if (DKIDiseases_Saved.barTrack == 1 or DKIDiseases_Saved.barTrack == 4) then
 			bar = DISEASETYPE_FROSTFEVER;
-		elseif (DKIDiseases_Saved.barTrack == 2 or DKIDiseases_Saved.barTrack == 5) then
-			bar = DISEASETYPE_PHYSICALVULN;
 		elseif (DKIDiseases_Saved.barTrack ~= 0) then
 			bar = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 		end
@@ -585,46 +543,6 @@ end
 --	ChatFrame1:AddMessage("SENT player: "..tostring(player).." spell: "..tostring(spell).." target: "..tostring(target));
 --end
 
-function DKIDiseases_Talents_Check()
-	
-	local talents = GetSpecialization();
-	
-	if (talents ~= nil) then
-	
-		-- HANZO: If it is a Blood DK...
-		if (talents == 1) then
-
-			-- HANZO: global flag for scarlet fever ON
-			IncludeWB = true;
-			IncludePV = false;
-
-		else
-
-			diseaseIcon[3][0]:Hide();
-			diseaseIcon[3][1]:Hide();
-			diseaseBar[3]:Hide();
-			
-			-- HANZO: global flag for scarlet fever OFF
-			IncludeWB = false;
-			IncludePV = true;
-					
-		end
-		
-	else
-	
-		-- HANZO: If DK is in the middle of respeccing, shut this stuff off
-		diseaseIcon[3][0]:Hide();
-		diseaseIcon[3][1]:Hide();
-		diseaseBar[3]:Hide();
-			
-		-- HANZO: global flag for scarlet fever OFF
-		IncludeWB = false;
-		IncludePV = false;
-	
-	end
-
-end
-
 function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	
 	-- Plague Strike
@@ -669,7 +587,7 @@ function GetSpellID(spell)
         name = GetSpellInfo(i)
 
         if name == spell then
-ChatFrame1:AddMessage("id: "..i);
+			ChatFrame1:AddMessage("id: "..i);
             return i
 
         end
@@ -701,16 +619,9 @@ end
 
 function DKIDiseases_UpdateIconsAndBars()
 	DKIDiseases_UpdateIconAndBar(55078, 0); -- BLOOD PLAGUE
-	DKIDiseases_UpdateIconAndBar(59921, 1); -- FROST FEVER
+	DKIDiseases_UpdateIconAndBar(55095, 1); -- FROST FEVER
 
 	-- HANZO: Scarlet Fever now causes Weakened Blows to be applied to targets with Blood Plague
-	if (IncludeWB) then
-		DKIDiseases_UpdateIconAndBar(115798, 0, true); -- WEAKENED BLOWS
-	end
-
-	if (IncludePV) then
-		DKIDiseases_UpdateIconAndBar(81326, 1, true); -- PHYS VULN
-	end
 	
 	--	id = GetSpellID("Frost Fever");
 --	ChatFrame1:AddMessage("WTF: "..tostring(id));
