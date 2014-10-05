@@ -377,18 +377,49 @@ function DKIRunes_BarUpdate()
 	Horizontal_Bar_1:Hide();
 	Vertical_Bar_0:Hide();
 	Vertical_Bar_1:Hide();
-	local runicPower = UnitMana("player") / UnitManaMax("player") ;
-	local healthPoints = UnitHealth("player") / UnitHealthMax("player") ;
-	local deathPoints = ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
+	
+	local runicPower = UnitPower("player");
+	local runicPowerMax = UnitPowerMax("player");
+	local runicPercent = 0;
+
+	if runicPower > 0 and runicPowerMax == 0 then 
+		runicPowerMax = runicPower;
+		runicPercent = 0;
+	elseif runicPower == 0 and runicPowerMax == 0 then
+		runicPercent = 0;
+	else
+		runicPercent = runicPower / runicPowerMax;
+	end
+
+	local healthPoints = UnitHealth("player");
+	local healthPointsMax = UnitHealthMax("player");
+	local healthPercent = 0;
+
+	if healthPoints > 0 and healthPointsMax == 0 then 
+		healthPointsMax = healthPoints;
+		healthPercent = 0;
+	elseif healthPoints == 0 and healthPointsMax == 0 then
+		healthPercent = 0;
+	else
+		healthPercent = healthPoints / healthPointsMax;
+	end
+
+	local deathPoints = 0;
+
+	if healthPercent > 0 then
+		deathPoints = ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
+	else
+		deathPoints = 0;
+	end
 
 	if (DKIRunes_Saved.bar0 > 0) then
 		local power0Value;
 		if(DKIRunes_Saved.bar0 == 2) then
-			power0Value = healthPoints;
+			power0Value = healthPercent;
 		elseif(DKIRunes_Saved.bar0 == 3) then
 			power0Value = deathPoints;
 		else
-			power0Value = runicPower;
+			power0Value = runicPercent;
 		end
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			EbonBlade_Bar_0:SetHeight(181 * power0Value);
@@ -407,11 +438,11 @@ function DKIRunes_BarUpdate()
 	if (DKIRunes_Saved.bar1 > 0) then
 		local power1Value;
 		if(DKIRunes_Saved.bar1 == 2) then
-			power1Value = healthPoints;
+			power1Value = healthPercent;
 		elseif(DKIRunes_Saved.bar1 == 3) then
 			power1Value = deathPoints;
 		else
-			power1Value = runicPower;
+			power1Value = runicPercent;
 		end
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			EbonBlade_Bar_1:SetHeight(181 * power1Value);
@@ -427,12 +458,12 @@ function DKIRunes_BarUpdate()
 		end
 	end
 
-	if(DKIRunes_Saved.rpCounter and UnitMana("player") > 0) then
-		DKIRunicPower:SetText(UnitMana("player"));
+	if(DKIRunes_Saved.rpCounter and UnitPower("player") > 0) then
+		DKIRunicPower:SetText(UnitPower("player"));
 		DKIRunicPower:Show();
 	end
 
-	if(DKIRunes_Saved.fade and UnitMana("player") == 0 and DKIRunes_inCombat2 == 0) then
+	if(DKIRunes_Saved.fade and UnitPower("player") == 0 and DKIRunes_inCombat2 == 0) then
 		DKIRunesFrame:SetAlpha(0.3);
 		EbonBlade_Bar_0:Hide();
 		EbonBlade_Bar_1:Hide();
