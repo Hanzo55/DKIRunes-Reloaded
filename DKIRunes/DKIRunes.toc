@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 60000
 ## Title: DKIRunes
 ## Notes: Rune display based on the contest and community feedback of DeathKnight.info
 ##		http://deathknight.info/
