@@ -1,31 +1,47 @@
 local DISEASETYPE_BLOODPLAGUE = 1;
 local DISEASETYPE_FROSTFEVER = 2;
+local DISEASETYPE_NECROTICPLAGUE = 4;
+
+--[[
+HANZO -- I want the defaults to be:
+
+1. Blood Plague: purple outside, purple inside
+2. Frost Fever: blue outside, blue inside
+3. Necrotic Plague: purple outside, vomit-yellow inside
+
+...which most closely match the wow icons. Maybe we'll let the user change later.
+]]--
 
 local DKIDisease_Ring = "Interface\\AddOns\\DKIDiseases\\ring"
 
 local DKIDisease_Ring_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_ring_color",
+	[DISEASETYPE_NECROTICPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_ring_color"
 };
 
 local DKIDisease_Icons = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon",
+	[DISEASETYPE_NECROTICPLAGUE] = "Interface\\AddOns\\DKIDiseases\\NP_icon"
 };
 
 local DKIDisease_Icon_Colors = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_icon_color",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_icon_color",
+	[DISEASETYPE_NECROTICPLAGUE] = "Interface\\AddOns\\DKIDiseases\\NP_icon_color"
 };
 
 local DKIDisease_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_bar",
+	[DISEASETYPE_NECROTICPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_bar"	
 };
 
 local DKIDisease_Inner_Bars = {
 	[DISEASETYPE_BLOODPLAGUE] = "Interface\\AddOns\\DKIDiseases\\BP_inner_bar",
 	[DISEASETYPE_FROSTFEVER] = "Interface\\AddOns\\DKIDiseases\\FF_inner_bar",
+	[DISEASETYPE_NECROTICPLAGUE] = "Interface\\AddOns\\DKIDiseases\\NP_inner_bar"
 };
 
 DKIDiseasesFrame = CreateFrame("Frame", "DKIDiseasesFrame", UIParent)
@@ -58,6 +74,7 @@ diseaseIconFont[1][2] = diseaseIcon[1][2]:CreateFontString("DKIDiseasesIconFont1
 diseaseIcon[1][3] = CreateFrame("Frame", "DKIDiseasesIcon13", diseaseIcon[1][0])
 diseaseIconFont[1][3] = diseaseIcon[1][3]:CreateFontString("DKIDiseasesIconFont13","OVERLAY","GameTooltipText")
 
+--[[
 diseaseIcon[2] = {}
 
 diseaseIcon[2][0] = CreateFrame("Frame", "DKIDiseasesIcon20", DKIDiseasesFrame)
@@ -81,6 +98,9 @@ diseaseIconFont[3][2] = diseaseIcon[3][2]:CreateFontString("DKIDiseasesIconFont3
 
 diseaseIcon[3][3] = CreateFrame("Frame", "DKIDiseasesIcon33", diseaseIcon[3][0])
 diseaseIconFont[3][3] = diseaseIcon[3][3]:CreateFontString("DKIDiseasesIconFont33","OVERLAY","GameTooltipText")
+]]--
+
+
 
 local diseaseIconTexture = {}
 
@@ -108,6 +128,7 @@ diseaseIconTexture[1][1] = {}
 diseaseIconTexture[1][1][0] = diseaseIcon[1][1]:CreateTexture("DKIDiseasesIcon110", "ARTWORK")
 diseaseIconTexture[1][1][1] = diseaseIcon[1][1]:CreateTexture("DKIDiseasesIcon111", "OVERLAY")
 
+--[[
 diseaseIconTexture[2] = {}
 
 diseaseIconTexture[2][0] = {}
@@ -131,14 +152,22 @@ diseaseIconTexture[3][1] = {}
 
 diseaseIconTexture[3][1][0] = diseaseIcon[3][1]:CreateTexture("DKIDiseasesIcon310", "ARTWORK")
 diseaseIconTexture[3][1][1] = diseaseIcon[3][1]:CreateTexture("DKIDiseasesIcon311", "OVERLAY")
+]]--
+
+
 
 
 local diseaseBar = {}
 
 diseaseBar[0] = CreateFrame("Frame", "DKIDiseasesBar0", DKIDiseasesFrame)
 diseaseBar[1] = CreateFrame("Frame", "DKIDiseasesBar1", DKIDiseasesFrame)
+--[[
 diseaseBar[2] = CreateFrame("Frame", "DKIDiseasesBar2", DKIDiseasesFrame)
 diseaseBar[3] = CreateFrame("Frame", "DKIDiseasesBar3", DKIDiseasesFrame)
+]]--
+
+
+
 
 local diseaseBarTexture = {}
 
@@ -152,6 +181,7 @@ diseaseBarTexture[1] = {}
 diseaseBarTexture[1][0] = diseaseBar[1]:CreateTexture("DKIDiseasesBar10", "BACKGROUND")
 diseaseBarTexture[1][1] = diseaseBar[1]:CreateTexture("DKIDiseasesBar11", "BORDER")
 
+--[[
 diseaseBarTexture[2] = {}
 
 diseaseBarTexture[2][0] = diseaseBar[2]:CreateTexture("DKIDiseasesBar20", "BACKGROUND")
@@ -161,12 +191,20 @@ diseaseBarTexture[3] = {}
 
 diseaseBarTexture[3][0] = diseaseBar[3]:CreateTexture("DKIDiseasesBar30", "BACKGROUND")
 diseaseBarTexture[3][1] = diseaseBar[3]:CreateTexture("DKIDiseasesBar31", "BORDER")
+]]--
+
+
+
+
+
 
 local diseaseDuration = 30	--HANZO: v5.0.4: diseases are baseline 30s now. No more Epidemic talent.
+local NPStackMax = 15
 local ap = {}
 local demo0Time = nil
 local demo1Time = nil
 local inCombat = 0
+local isUsingNecroticPlague = nil;
 local variablesLoaded;
 
 -- Saved Variables
@@ -253,7 +291,7 @@ function DKIDiseases_OnLoad(self)
 	-- Disable rune frame if not a death knight.
 	local _, class = UnitClass("player");
 	if ( class ~= "DEATHKNIGHT" ) then
-		for i=0, 3 do
+		for i=0, 1 do
 			diseaseIcon[i][0]:Hide();
 			diseaseIcon[i][1]:Hide();
 			diseaseBar[i]:Hide();
@@ -272,7 +310,7 @@ function DKIDiseases_OnLoad(self)
 		DKIDiseasesFrame:SetScript("OnEvent", DKIDiseases_OnEvent)
 		DKIDiseasesFrame:SetScript("OnUpdate", DKIDiseases_OnUpdate)
 		
-		for i=0, 3 do
+		for i=0, 1 do
 			DKIDiseases_FrameOnLoad(diseaseIcon[i][0]);
 		end
 	end
@@ -287,8 +325,8 @@ end
 
 function DKIDiseases_OnEvent(self, event, ...)
 	if ( event == "PLAYER_ENTERING_WORLD" ) then
-		InitDisease(0, DISEASETYPE_BLOODPLAGUE);
-		InitDisease(1, DISEASETYPE_FROSTFEVER);
+		DKIDiseases_Talents_Check();
+		InitDiseases();
 		
 	elseif ( event == "VARIABLES_LOADED" ) then
 		DKIDiseases_LoadNewSavedVariables();
@@ -296,6 +334,15 @@ function DKIDiseases_OnEvent(self, event, ...)
 
 	elseif (event == "UNIT_SPELLCAST_SUCCEEDED") then
 		DKIDiseases_UNIT_SPELLCAST_SUCCEEDED(...)
+
+	elseif (event == "CHARACTER_POINTS_CHANGED") then
+		DKIDiseases_Talents_Check();
+
+	elseif ( event == "PLAYER_ALIVE" ) then
+		DKIDiseases_Talents_Check();
+
+	elseif ( event == "PLAYER_TALENT_UPDATE" ) then
+		DKIDiseases_Talents_Check();
 
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
 		inCombat = 1;
@@ -311,10 +358,9 @@ function DKIDiseases_OnEvent(self, event, ...)
 end
 
 function DKIDiseases_UpdateUI()
-	InitDisease(0, DISEASETYPE_BLOODPLAGUE); --HANZO: Pointing out that this done via convenience, it equates to 1, but has nothing to with the assets themselves
-	InitDisease(1, DISEASETYPE_FROSTFEVER); --HANZO: Pointing out that this done via convenience, it equates to 2, but has nothing to with the assets themselves
+	InitDiseases();
 
-	for id=0, 3 do
+	for id=0, 1 do
 		if(DKIDiseases_Saved.ringSil == 2) then
 			diseaseIconTexture[id][0][0]:Show();
 		else
@@ -335,8 +381,6 @@ function DKIDiseases_GetSettings(index)
 
 	local ring_color, icon, icon_color, blade, bar = 0, 0, 0, 0, 0; --Hanzo: blade is outside, bar is inside
 
-	--HANZO: In this rev, there's only two indexes: 1 for frame 1 (blood plague) and 2 for frame 2 (frost fever)
-	--if you add new frames for Soul Reaper, Death and Decay etc, you'll need another "switch" for that index in here
 	if (index == DISEASETYPE_BLOODPLAGUE) then
 
 		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
@@ -377,7 +421,7 @@ function DKIDiseases_GetSettings(index)
 		
 		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
 			icon = DISEASETYPE_FROSTFEVER;
-			icon_color =DISEASETYPE_FROSTFEVER;
+			icon_color = DISEASETYPE_FROSTFEVER;
 		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
 			icon = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 			icon_color = DISEASETYPE_FROSTFEVER; -- (DoT AP)
@@ -395,6 +439,36 @@ function DKIDiseases_GetSettings(index)
 			bar = DISEASETYPE_FROSTFEVER; -- (DoT AP)
 		end
 
+	elseif (index == DISEASETYPE_NECROTICPLAGUE) then
+		
+		-- Frost Fever
+	
+		if (DKIDiseases_Saved.ringTrack == 1 or DKIDiseases_Saved.ringTrack == 4) then
+			ring_color = DISEASETYPE_NECROTICPLAGUE;
+		elseif (DKIDiseases_Saved.ringTrack ~= 0) then
+			ring_color = DISEASETYPE_NECROTICPLAGUE; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.iconTrack == 1 or DKIDiseases_Saved.iconTrack == 4) then
+			icon = DISEASETYPE_NECROTICPLAGUE;
+			icon_color = DISEASETYPE_NECROTICPLAGUE;
+		elseif (DKIDiseases_Saved.iconTrack ~= 0) then
+			icon = DISEASETYPE_NECROTICPLAGUE; -- (DoT AP)
+			icon_color = DISEASETYPE_NECROTICPLAGUE; -- (DoT AP)
+		end
+
+		if (DKIDiseases_Saved.bladeTrack == 1 or DKIDiseases_Saved.bladeTrack == 4) then
+			blade = DISEASETYPE_NECROTICPLAGUE;
+		elseif (DKIDiseases_Saved.bladeTrack ~= 0) then
+			blade = DISEASETYPE_NECROTICPLAGUE; -- (DoT AP)
+		end
+		
+		if (DKIDiseases_Saved.barTrack == 1 or DKIDiseases_Saved.barTrack == 4) then
+			bar = DISEASETYPE_NECROTICPLAGUE;
+		elseif (DKIDiseases_Saved.barTrack ~= 0) then
+			bar = DISEASETYPE_NECROTICPLAGUE; -- (DoT AP)
+		end		
+
 	end
 	
 	--ChatFrame1:AddMessage("DEBUG Frame "..index..": Ring Color: "..ring_color..", Icon: "..icon..", Icon Color: "..icon_color..", Blade: "..blade..", Bar: "..bar);	
@@ -402,11 +476,42 @@ function DKIDiseases_GetSettings(index)
 
 end
 
+function InitDiseases()
+
+	if ( isUsingNecroticPlague == true ) then
+		InitDisease(0, DISEASETYPE_NECROTICPLAGUE);
+	else
+		InitDisease(0, DISEASETYPE_BLOODPLAGUE);
+		InitDisease(1, DISEASETYPE_FROSTFEVER);
+	end
+
+end
+
+--[[
+args:
+- id: id of the frame group you're setting up (consider a frame group all the frames necessary for *a* single disease)
+- index: the disease you're assigning the frame (see top): one of: DISEASETYPE_BLOODPLAGUE, DISEASETYPE_FROSTFEVER, OR DISEASETYPE_NECROTICPLAGUE
+
+fyi: a "frame group" consists of
+
+diseaseIcon:		?
+diseaseIconTexture:	?
+diseaseIconFont:	?
+diseaseBar:			?
+diseaseBarTexture:	?
+
+]]--
 function InitDisease(id, index)
 
-	--HANZO: *New*: Based on the index of the frame we're updating, we now change the icons based on the settings in the addon (ie. outer bar:frost fever=blue, inner bar:physical vuln=teal)
+	--[[
+	HANZO: *New*: Based on the id of the frame we're updating, we now change the icons based on the settings in the addon
+	
+	examples:
+	frost fever 	- outer bar:ff=blue, 	inner bar:ff=blue
+	blood plague 	- outer bar:bp=purple, 	inner bar:bp=purple
+	necrotic plague - outer bar:bp=purple, 	inner bar:np=yellow
+	]]--
 	ringColorIndex, iconIndex, iconColorIndex, bladeIndex, barIndex = DKIDiseases_GetSettings(index);
-
 
 	if(DKIDiseases_Saved.y[id] == nil) then
 		DKIDiseases_ResetLocation(id);
@@ -543,6 +648,50 @@ end
 --	ChatFrame1:AddMessage("SENT player: "..tostring(player).." spell: "..tostring(spell).." target: "..tostring(target));
 --end
 
+function DKIDiseases_Talents_Check()
+	
+	local specGroup = GetActiveSpecGroup();
+	
+	if (specGroup ~= nil) then
+
+		local talentID, name, iconTexture, selected, available = GetTalentInfo(7, 1, specGroup);		
+		--ChatFrame1:AddMessage(tostring(name).." selected: "..tostring(selected));
+	
+		if (selected == true) then
+
+			-- HANZO: they took Necrotic Plague
+			isUsingNecroticPlague = true;
+
+			-- so hide the 2nd frame group (normally reserve for frost fever)
+			diseaseIcon[1][0]:Hide();
+			diseaseIcon[1][1]:Hide();
+			diseaseBar[1]:Hide();
+
+		else
+
+			isUsingNecroticPlague = false;
+
+			-- show the 2nd frame group (so frost fever can be shown; the 1st group holds blood plague)
+			diseaseIcon[1][0]:Show();
+			diseaseIcon[1][1]:Show();
+			diseaseBar[1]:Show();			
+					
+		end
+		
+	else
+
+		isUsingNecroticPlague = false;
+
+		for i=0, 1 do
+			diseaseIcon[i][0]:Hide();
+			diseaseIcon[i][1]:Hide();
+			diseaseBar[i]:Hide();
+		end
+	
+	end
+
+end
+
 function DKIDiseases_UNIT_SPELLCAST_SUCCEEDED( player, spell, rank )
 	
 	-- Plague Strike
@@ -587,6 +736,7 @@ function GetSpellID(spell)
         name = GetSpellInfo(i)
 
         if name == spell then
+			
 			ChatFrame1:AddMessage("id: "..i);
             return i
 
@@ -598,7 +748,7 @@ end
 
 function DKIDiseases_OnUpdate(self, update)
 	if(diseaseIcon[0][0]:IsMouseEnabled()) then
-		for i=0, 3 do
+		for i=0, 1 do
 			DKIDiseases_GetLocation(i);
 		end
 	end
@@ -618,19 +768,13 @@ function DKIDiseases_GetLocation(i)
 end
 
 function DKIDiseases_UpdateIconsAndBars()
-	DKIDiseases_UpdateIconAndBar(55078, 0); -- BLOOD PLAGUE
-	DKIDiseases_UpdateIconAndBar(55095, 1); -- FROST FEVER
+	if (isUsingNecroticPlague == true) then
+		DKIDiseases_UpdateIconAndBar(155159, 0); -- NECROTIC PLAGUE
+	else
+		DKIDiseases_UpdateIconAndBar(55078, 0); -- BLOOD PLAGUE
+		DKIDiseases_UpdateIconAndBar(55095, 1); -- FROST FEVER
+	end
 
-	-- HANZO: Scarlet Fever now causes Weakened Blows to be applied to targets with Blood Plague
-	
-	--	id = GetSpellID("Frost Fever");
---	ChatFrame1:AddMessage("WTF: "..tostring(id));
---	id = GetSpellID("Blood Plague");
---	ChatFrame1:AddMessage("WTF: "..tostring(id));
---	id = GetSpellID("Crypt Fever");
---	ChatFrame1:AddMessage("WTF: "..tostring(id));
---	id = GetSpellID("Ebon Plague");
---	ChatFrame1:AddMessage("WTF: "..tostring(id));
 --	id = GetSpellID("Pestilence");
 --	ChatFrame1:AddMessage("WTF: "..tostring(id));
 end
@@ -645,11 +789,11 @@ function DKIDiseases_UpdateDemoIconsAndBars(demo0Input, demo1Input)
 		local delta =  ( (demo0Time + speed) - GetTime() ) / speed;
 		if(delta <= 0) then
 			demo0Time = nil;
-			for id=0, 3 do
+			for id=0, 1 do
 				DKIDiseases_Animate(id, 0, speed, 4)
 			end
 		else
-			for id=0, 3 do
+			for id=0, 1 do
 				DKIDiseases_Animate(id, delta, speed, 1)
 				DKIDiseases_Animate(id, 1, speed, 4)
 			end
@@ -690,21 +834,33 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, isDebuffComponent)
 	
 	if ( debuff_found ) then
 	
-		local name, _, _, _, _, duration, endTime, isMine = UnitDebuff('target', debuff_found)
-		
+		local name, _, _, numStacks, _, duration, endTime, isMine = UnitDebuff('target', debuff_found)
+
 		if (not duration or duration > 60) then
 			duration = diseaseDuration;
 		end		
 
 		local delta = ( endTime - GetTime() ) / duration;
 
-		if (isDebuffComponent) then
-			DKIDiseases_Animate(id, delta, duration, 2)
+		--ChatFrame1:AddMessage(tostring(name)..", numStacks: "..tostring(numStacks)..", duration: "..tostring(duration)..", endtime: "..tostring(endtime)..", delta:"..tostring(delta));
+
+		if (isUsingNecroticPlague) then
+			
+			DKIDiseases_Animate(id, numStacks/15, 15, 2);
+			DKIDiseases_Animate(id, 1, 15, 1);
+
 		else
-			DKIDiseases_Animate(id, delta, duration, 1)
+
+			if (isDebuffComponent) then
+				DKIDiseases_Animate(id, delta, duration, 2)
+			else
+				DKIDiseases_Animate(id, delta, duration, 1)
+			end
+
 		end
 
-		if(delta > 0) then
+
+		if (delta > 0) then
 			if (isDebuffComponent) then
 				DKIDiseases_Animate(id, 1, duration, 5)
 			else
@@ -732,13 +888,11 @@ function DKIDiseases_UpdateIconAndBar(debuff, id, isDebuffComponent)
 	
 	else
 	
-		if (isDebuffComponent) then
-			DKIDiseases_Animate(id, 0, duration, 2)
-			DKIDiseases_Animate(id, 0, duration, 5)
-		else
-			DKIDiseases_Animate(id, 0, duration, 1)
-			DKIDiseases_Animate(id, 0, duration, 4)
-		end
+		DKIDiseases_Animate(id, 0, duration, 2)
+		DKIDiseases_Animate(id, 0, duration, 5)
+
+		DKIDiseases_Animate(id, 0, duration, 1)
+		DKIDiseases_Animate(id, 0, duration, 4)
 	
 	end
 
@@ -755,8 +909,8 @@ function DKIDiseases_Animate(id, delta, duration, track)
 	diseaseBarTexture[id][0]:SetAlpha(DKIDiseases_Saved.barAlpha);
 	diseaseBarTexture[id][1]:SetAlpha(DKIDiseases_Saved.bladeAlpha);
 
-	if(DKIDiseases_Saved.ringTrack == track) then
-		if(delta > 0 and DKIDiseases_Saved.ringSil > 0) then
+	if (DKIDiseases_Saved.ringTrack == track) then
+		if (delta > 0 and DKIDiseases_Saved.ringSil > 0) then
 			diseaseIconTexture[id][0][0]:Show();
 		elseif(DKIDiseases_Saved.ringSil < 2) then
 			diseaseIconTexture[id][0][0]:Hide();
@@ -882,7 +1036,7 @@ function DKIDiseases_Reset()
 	DKIDiseases_Saved.ep = true;
 	--DKIDiseases_Saved.sf = true;
 	
-	for i=0, 3 do
+	for i=0, 1 do
 		diseaseIcon[i][0]:SetMovable(false)
 		diseaseIcon[i][0]:EnableMouse(false)
 		diseaseBar[i]:SetMovable(false)
@@ -891,7 +1045,7 @@ function DKIDiseases_Reset()
 
 	DKIDiseases_ConfigChange();
 	
-	for i=0, 3 do	
+	for i=0, 1 do	
 		DKIDiseases_ResetLocation(i);
 	end
 
@@ -933,7 +1087,7 @@ function DKIDiseases_ResetLocation(i)
 end
 
 function FixDKIDTimerLocation(frame, var)
-	for i=0, 3 do
+	for i=0, 1 do
 		diseaseIcon[i][frame]:ClearAllPoints()
 		if(var == 1) then
 			diseaseIcon[i][frame]:SetPoint('CENTER', diseaseIcon[i][0], 'CENTER', -1, 0)
