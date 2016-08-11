@@ -58,17 +58,19 @@ function DKIRunes_populateBlizzardOptions()
 	rc_blur:SetScript('OnClick', function(self) DKIRunes_Saved.rc_blur = self:GetChecked() end);
 	rc_blur:SetPoint('LEFT', empower, 'RIGHT', 210, 0)
 
+--[[
 	local gUholy = CreateFrame("CheckButton", "gUnholyCheck", frame, "OptionsCheckButtonTemplate");
 	_G[gUholy:GetName().."Text"]:SetText("Green Unholy");
 	gUholy:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.greenUnholy) end)
 	gUholy:SetScript('OnClick', function(self) DKIRunes_Saved.greenUnholy = self:GetChecked();DKIRunes_UpdateArt(); end)
 	gUholy:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
+--]]
 
 	local pDeath = CreateFrame("CheckButton", "pDeathCheck", frame, "OptionsCheckButtonTemplate");
 	_G[pDeath:GetName().."Text"]:SetText("Purple Death");
 	pDeath:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.purpleDeath) end)
 	pDeath:SetScript('OnClick', function(self) DKIRunes_Saved.purpleDeath = self:GetChecked();DKIRunes_UpdateArt(); end)
-	pDeath:SetPoint('LEFT', gUholy, 'RIGHT', 100, 0)
+	pDeath:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
 
 	local graphicsTitle = frame:CreateFontString("graphicsTitleString","ARTWORK","GameTooltipHeaderText");
 	graphicsTitle:SetText("Rune Frame Graphics")
@@ -102,7 +104,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(br1, BR1_Initialise)
 	
 	local br1Title = frame:CreateFontString("br1TitleString","ARTWORK","GameFontNormal");
-	br1Title:SetText("Blood")
+	br1Title:SetText("Rune 1")
 	br1Title:SetPoint('BOTTOMLEFT', br1, 'TOPLEFT', 30, 0)
 
 	br2 = CreateFrame("Frame", "BR2Slot", frame, "UIDropDownMenuTemplate"); 
@@ -111,7 +113,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(br2, BR2_Initialise)
 	
 	local br2Title = frame:CreateFontString("br2TitleString","ARTWORK","GameFontNormal");
-	br2Title:SetText("Blood")
+	br2Title:SetText("Rune 2")
 	br2Title:SetPoint('BOTTOMLEFT', br2, 'TOPLEFT', 30, 0)
 
 	fr1 = CreateFrame("Frame", "FR1Slot", frame, "UIDropDownMenuTemplate"); 
@@ -120,7 +122,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(fr1, FR1_Initialise)
 	
 	local fr1Title = frame:CreateFontString("fr1TitleString","ARTWORK","GameFontNormal");
-	fr1Title:SetText("Frost")
+	fr1Title:SetText("Rune 5")
 	fr1Title:SetPoint('BOTTOMLEFT', fr1, 'TOPLEFT', 30, 0)
 
 	fr2 = CreateFrame("Frame", "FR2Slot", frame, "UIDropDownMenuTemplate"); 
@@ -129,7 +131,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(fr2, FR2_Initialise)
 	
 	local fr2Title = frame:CreateFontString("fr2TitleString","ARTWORK","GameFontNormal");
-	fr2Title:SetText("Frost")
+	fr2Title:SetText("Rune 6")
 	fr2Title:SetPoint('BOTTOMLEFT', fr2, 'TOPLEFT', 30, 0)
 
 	uh1 = CreateFrame("Frame", "UH1Slot", frame, "UIDropDownMenuTemplate"); 
@@ -138,7 +140,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(uh1, UH1_Initialise)
 	
 	local uh1Title = frame:CreateFontString("uh1TitleString","ARTWORK","GameFontNormal");
-	uh1Title:SetText("Unholy")
+	uh1Title:SetText("Rune 3")
 	uh1Title:SetPoint('BOTTOMLEFT', uh1, 'TOPLEFT', 30, 0)
 
 	uh2 = CreateFrame("Frame", "UH2Slot", frame, "UIDropDownMenuTemplate"); 
@@ -147,7 +149,7 @@ function DKIRunes_populateBlizzardOptions()
 	UIDropDownMenu_Initialize(uh2, UH2_Initialise)
 	
 	local uh2Title = frame:CreateFontString("uh2TitleString","ARTWORK","GameFontNormal");
-	uh2Title:SetText("Unholy")
+	uh2Title:SetText("Rune 4")
 	uh2Title:SetPoint('BOTTOMLEFT', uh2, 'TOPLEFT', 30, 0)
 
 	-- Runic Power Child Menu

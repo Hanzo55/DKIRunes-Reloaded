@@ -1,49 +1,40 @@
-
-local RUNETYPE_BLOOD = 1;
-local RUNETYPE_UNHOLY = 2;
-local RUNETYPE_UNHOLY2 = 22;	--Alternate Green Runes
-local RUNETYPE_FROST = 3;
-local RUNETYPE_DEATH = 4;
-local RUNETYPE_DEATH2 = 42; --Alternate Purple Runes
+local RUNETYPE_BLOOD 	= 1;
+local RUNETYPE_UNHOLY 	= 2;
+local RUNETYPE_UNHOLY2 	= 22;	--Alternate Green Runes
+local RUNETYPE_FROST 	= 3;
+local RUNETYPE_DEATH 	= 4;
+local RUNETYPE_DEATH2 	= 42; 	--Alternate Purple Runes
 
 local DKIRunes = {
-	[RUNETYPE_BLOOD] = "Interface\\AddOns\\DKIRunes\\Blood_Runes",
-	[RUNETYPE_FROST] = "Interface\\AddOns\\DKIRunes\\Frost_Runes",
-	[RUNETYPE_UNHOLY] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
-	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
-};
-
-local altDKIRunes = {
-	[RUNETYPE_UNHOLY] = "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
-	[RUNETYPE_UNHOLY2] = "Interface\\AddOns\\DKIRunes\\Green_Unholy_Runes",
-	[RUNETYPE_DEATH] = "Interface\\AddOns\\DKIRunes\\Death_Runes",
-	[RUNETYPE_DEATH2] = "Interface\\AddOns\\DKIRunes\\Purple_Death_Runes",
+	[RUNETYPE_BLOOD] 	= "Interface\\AddOns\\DKIRunes\\Blood_Runes",
+    [RUNETYPE_FROST] 	= "Interface\\AddOns\\DKIRunes\\Frost_Runes",
+	[RUNETYPE_UNHOLY] 	= "Interface\\AddOns\\DKIRunes\\Unholy_Runes",
+	[RUNETYPE_UNHOLY2] 	= "Interface\\AddOns\\DKIRunes\\Green_Unholy_Runes",
+	[RUNETYPE_DEATH] 	= "Interface\\AddOns\\DKIRunes\\Death_Runes",
+	[RUNETYPE_DEATH2] 	= "Interface\\AddOns\\DKIRunes\\Purple_Death_Runes",
 };
 
 local runeEnergizeTextures = {
-	[RUNETYPE_BLOOD] = "Interface\\PlayerFrame\\Deathknight-Energize-Blood",
-	[RUNETYPE_FROST] = "Interface\\PlayerFrame\\Deathknight-Energize-Frost",
-	[RUNETYPE_UNHOLY] = "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
-	[RUNETYPE_DEATH] = "Interface\\PlayerFrame\\Deathknight-Energize-White",
+	[RUNETYPE_BLOOD] 	= "Interface\\PlayerFrame\\Deathknight-Energize-Blood",
+	[RUNETYPE_FROST] 	= "Interface\\PlayerFrame\\Deathknight-Energize-Frost",
+	[RUNETYPE_UNHOLY] 	= "Interface\\PlayerFrame\\Deathknight-Energize-Unholy",
+	[RUNETYPE_DEATH] 	= "Interface\\PlayerFrame\\Deathknight-Energize-White",
 };
 
 local DKIRuneLengths = {
-	[RUNETYPE_BLOOD] = 69,
-	[RUNETYPE_FROST] = 49,
-	[RUNETYPE_UNHOLY] = 65,
-	[RUNETYPE_DEATH] = 67,
+	[RUNETYPE_BLOOD] 	= 69,
+	[RUNETYPE_FROST] 	= 49,
+	[RUNETYPE_UNHOLY] 	= 65,
+	[RUNETYPE_DEATH] 	= 67,
 };
 
 local DKIRuneColors = {
-	[RUNETYPE_BLOOD]	= {1, 0, 0},
-	[RUNETYPE_FROST] = {0, 1, 1},
-	[RUNETYPE_UNHOLY] = {0, 0.5, 0},
-	[RUNETYPE_DEATH] = {0.8, 0.1, 1},
-};
-
-local altDKIRuneColors = {
-	[RUNETYPE_UNHOLY2] = {0.06, 0.43, 0.12},
-	[RUNETYPE_DEATH2] = {0.65, 0.11, 0.82},		
+	[RUNETYPE_BLOOD] 	= {1, 0, 0},
+	[RUNETYPE_FROST] 	= {0, 1, 1},
+	[RUNETYPE_UNHOLY] 	= {0, 0.5, 0},
+	[RUNETYPE_UNHOLY2] 	= {0.06, 0.43, 0.12},	
+	[RUNETYPE_DEATH] 	= {0.8, 0.1, 1},
+	[RUNETYPE_DEATH2] 	= {0.65, 0.11, 0.82}	
 };
 
 --HANZO: the array order is mixed up for readability: in-game, the rune order from left to right is 1,2,5,6,3,4 = blood, blood, frost, frost, unholy, unholy
@@ -94,6 +85,7 @@ DKIRunes_Saved = {
 };
 
 function DKIRunes_LoadNewSavedVariables()
+
 	if(DKIRunes_Saved.artStyle == nil) then
 		DKIRunes_Saved.artStyle = 1;
 	end
@@ -166,12 +158,59 @@ function DKIRunes_LoadNewSavedVariables()
 	if(DKIRunes_Saved.rc_blur == nil) then
 		DKIRunes_Saved.rc_blur = true;
 	end
+
+end
+
+function DKIRunes_GetRuneType(rune)
+
+	local talents = GetSpecialization();
+
+	if (talents ~= nil) then
+
+		if (talents == 1) then
+			
+			return RUNETYPE_BLOOD;
+		
+		elseif (talents == 2) then
+		
+			return RUNETYPE_FROST;
+		
+		elseif (talents == 3) then
+
+			if ( DKIRunes_Saved.greenUnholy ) then
+		
+				return RUNETHYPE_UNHOLY2;
+
+			else
+
+				return RUNETYPE_UNHOLY;
+
+			end
+		
+		end
+
+	else
+
+		if ( DKIRunes_Saved.purpleDeath ) then
+	
+			return RUNETYPE_DEATH2;
+
+		else
+
+			return RUNETYPE_DEATH;
+
+		end
+	
+	end
+
 end
 
 function DKIRunes_Rune_OnLoad(self)
+
 	self.fill = _G[self.GetName().."Fill"];
 	self.shine = _G[self.GetName().."ShineTexture"];
 	self.colorOrb = _G[self.GetName().."RuneColorGlow"];
+
 end
 
 function DKIRunes_OnLoad(self)
@@ -192,13 +231,14 @@ function DKIRunes_OnLoad(self)
 		RuneButtonIndividual5:Hide();
 		RuneButtonIndividual6:Hide();
 	
-		if ( GetCVarBool("predictedPower") and frequentUpdates ) then
-			self:RegisterEvent("UNIT_RUNIC_POWER");
-		end
+--		if ( GetCVarBool("predictedPower") and frequentUpdates ) then
+--			self:RegisterEvent("UNIT_POWER");
+--		end
 
+		self:RegisterEvent("CHARACTER_POINTS_CHANGED");
 		self:RegisterEvent("RUNE_POWER_UPDATE");
-		self:RegisterEvent("RUNE_TYPE_UPDATE");
-		self:RegisterEvent("RUNE_REGEN_UPDATE");
+ 		self:RegisterEvent("RUNE_TYPE_UPDATE");
+--		self:RegisterEvent("RUNE_REGEN_UPDATE");
 		self:RegisterEvent("PLAYER_ENTERING_WORLD");
 		self:RegisterEvent("VARIABLES_LOADED");
 		self:RegisterEvent("PLAYER_ENTER_COMBAT");
@@ -211,19 +251,10 @@ function DKIRunes_OnLoad(self)
 end
 
 function DKIRunes_OnEvent (self, event, ...)
+
 	if ( event == "PLAYER_ENTERING_WORLD" ) then
-		Rune1:SetFrameLevel(4);
-		Rune2:SetFrameLevel(4);
 
-		Rune3Rune:SetTexture(DKIRunes[RUNETYPE_UNHOLY]);
-		Rune4Rune:SetTexture(DKIRunes[RUNETYPE_UNHOLY]);
-		Rune3:SetFrameLevel(4);
-		Rune4:SetFrameLevel(4);
-
-		Rune5Rune:SetTexture(DKIRunes[RUNETYPE_FROST]);
-		Rune6Rune:SetTexture(DKIRunes[RUNETYPE_FROST]);
-		Rune5:SetFrameLevel(4);
-		Rune6:SetFrameLevel(4);
+		DKIRunes_InitArt();
 
 		DKIRunesHorizontalBackdrop:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
 		DKIRunesHorizontalBackdrop:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r,TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
@@ -235,27 +266,38 @@ function DKIRunes_OnEvent (self, event, ...)
 		DKIRunesRunicPower:Show();
 
 	elseif ( event == "VARIABLES_LOADED" ) then
+
 		DKIRunes_LoadNewSavedVariables();
 		DKIRunes_Rotate(false);
+
 		RunicBar0_Set(DKIRunes_Saved.bar0)
 		RunicBar1_Set(DKIRunes_Saved.bar1)
+
 		DKIRunes_BarUpdate();
 		DKIRunes_UpdateUI();
 		DKIRunes_populateBlizzardOptions();
+
 		DKIRunesFrame:SetAlpha(0.3);
+
 		DKIRunes_inCombat2 = 0;
 	
 		DKIRunesFrame:EnableMouse(false)
 
+	elseif (event == "CHARACTER_POINTS_CHANGED") then
+
+		DKIRunes_UpdateUI();
+
 	--Fires when the availability of one of the player's rune resources changes
 	elseif ( event == "RUNE_POWER_UPDATE" ) then
+
 		local runeIndex, isEnergize = ...;
 		
-		if(isEnergize and DKIRunes_Saved.empower) then
+		if( isEnergize and DKIRunes_Saved.empower ) then
 			_G["Rune"..runeIndex].energize:Play();
 		end
 		
 	elseif ( event == "UNIT_AURA" ) then
+
 		local name = UnitAura("player", "Runic Corruption");
 		
 		--ChatFrame1:AddMessage(" rc: "..tostring(name) );		
@@ -277,10 +319,12 @@ function DKIRunes_OnEvent (self, event, ...)
 		end
 	
 	elseif ( event == "PLAYER_ENTER_COMBAT" ) then
+
 		inCombat = 1;
 		DKIRunes_inCombat2 = 1;
 
 	elseif ( event == "PLAYER_LEAVE_COMBAT" ) then
+
 		inCombat = 0;
 		DKIRunes_inCombat2 = 0;
 		DKIRunes_isRunicCorruptionOn = false; -- HANZO; I'll put this safety here in the off-chance you disable it in the middle of runic corruption actually running.
@@ -291,15 +335,39 @@ end
 
 -- Update All
 function DKIRunes_UpdateUI()
+
 	DKIRunes_SetLocation();
 	DKIRunes_UpdateArt();
 	DKIRunes_SetRuneOffsets();
+
+end
+
+-- Initialize Art
+function DKIRunes_InitArt()
+
+	Rune1Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(1)]);
+	Rune2Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(2)]);
+	Rune1:SetFrameLevel(4);
+	Rune2:SetFrameLevel(4);
+
+	Rune3Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(3)]);
+	Rune4Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(4)]);
+	Rune3:SetFrameLevel(4);
+	Rune4:SetFrameLevel(4);
+
+	Rune5Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(5)]);
+	Rune6Rune:SetTexture(DKIRunes[DKIRunes_GetRuneType(6)]);
+	Rune5:SetFrameLevel(4);
+	Rune6:SetFrameLevel(4);
+
 end
 
 -- Set Art
 function DKIRunes_UpdateArt()
+
 	DKIRunesFrame:SetScale(DKIRunes_Saved.scale);
 	DKIRunesRunicPower:SetScale(DKIRunes_Saved.counterScale);
+	
 	DKIRunesEbonBlade:Hide();
 	DKIRunesHorizontalBackdrop:Hide();
 	DKIRunesVerticalBackdrop:Hide();
@@ -317,18 +385,9 @@ function DKIRunes_UpdateArt()
 	else
 		DKIRunesFrame:SetFrameLevel(2);
 	end
-	
-	if ( DKIRunes_Saved.greenUnholy ) then
-		DKIRunes[RUNETYPE_UNHOLY] = altDKIRunes[RUNETYPE_UNHOLY2]
-	else
-		DKIRunes[RUNETYPE_UNHOLY] = altDKIRunes[RUNETYPE_UNHOLY]
-	end
 
-	if ( DKIRunes_Saved.purpleDeath ) then
-		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH2]
-	else
-		DKIRunes[RUNETYPE_DEATH] = altDKIRunes[RUNETYPE_DEATH]
-	end
+	-- reinit
+	DKIRunes_InitArt();
 
 end
 
@@ -363,20 +422,27 @@ function DKIRunes_UpdateBlurDirection()
 end
 
 function DKIRunes_BarUpdate()
+
 	DKIRunicPower:Hide();
 	DKIRunesFrame:SetAlpha(1.0);
+	
 	EbonBlade_Bar_0:Hide();
 	EbonBlade_Bar_1:Hide();
+	
 	Horizontal_Bar_0:Hide();
 	Horizontal_Bar_1:Hide();
+	
 	Vertical_Bar_0:Hide();
 	Vertical_Bar_1:Hide();
+	
 	local runicPower = UnitMana("player") / UnitManaMax("player") ;
 	local healthPoints = UnitHealth("player") / UnitHealthMax("player") ;
 	local deathPoints = ( UnitHealthMax("player") - UnitHealth("player") ) / UnitHealthMax("player");
 
 	if (DKIRunes_Saved.bar0 > 0) then
+
 		local power0Value;
+
 		if(DKIRunes_Saved.bar0 == 2) then
 			power0Value = healthPoints;
 		elseif(DKIRunes_Saved.bar0 == 3) then
@@ -384,6 +450,7 @@ function DKIRunes_BarUpdate()
 		else
 			power0Value = runicPower;
 		end
+
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			EbonBlade_Bar_0:SetHeight(181 * power0Value);
 			Vertical_Bar_0:SetHeight(150 * power0Value);
@@ -391,15 +458,19 @@ function DKIRunes_BarUpdate()
 			EbonBlade_Bar_0:SetWidth(181 * power0Value);
 			Horizontal_Bar_0:SetWidth(150 * power0Value);
 		end
+
 		if(power0Value > 0) then
 			EbonBlade_Bar_0:Show();
 			Vertical_Bar_0:Show();
 			Horizontal_Bar_0:Show();
 		end
+
 	end
 
 	if (DKIRunes_Saved.bar1 > 0) then
+
 		local power1Value;
+
 		if(DKIRunes_Saved.bar1 == 2) then
 			power1Value = healthPoints;
 		elseif(DKIRunes_Saved.bar1 == 3) then
@@ -407,6 +478,7 @@ function DKIRunes_BarUpdate()
 		else
 			power1Value = runicPower;
 		end
+
 		if (DKIRunes_Saved.rotate % 2 == 1) then
 			EbonBlade_Bar_1:SetHeight(181 * power1Value);
 			Vertical_Bar_1:SetHeight(150 * power1Value);
@@ -414,11 +486,13 @@ function DKIRunes_BarUpdate()
 			EbonBlade_Bar_1:SetWidth(181 * power1Value);
 			Horizontal_Bar_1:SetWidth(150 * power1Value);
 		end
+
 		if(power1Value > 0) then
 			EbonBlade_Bar_1:Show();
 			Vertical_Bar_1:Show();
 			Horizontal_Bar_1:Show();
 		end
+
 	end
 
 	if(DKIRunes_Saved.rpCounter and UnitMana("player") > 0) then
@@ -435,6 +509,7 @@ function DKIRunes_BarUpdate()
 		Vertical_Bar_0:Hide();
 		Vertical_Bar_1:Hide();
 	end
+
 end
 
 function DKIRunes_SetLocation()
@@ -455,11 +530,13 @@ function DKIRunes_OnUpdate(self, update)
 	end
 
 	for i=1, 6 do
-		local runeType = GetRuneType( i );
-		local runeLength = DKIRuneLengths[runeType];
+
+		local runeLength = DKIRuneLengths[DKIRunes_GetRuneType(i)];
 		local maxFrameX = math.fmod( runeLength, 8 );
 		local maxFrameY = math.floor( runeLength / 8 );
+
 		DKIRunes_AnimateRune( i, runeLength - 2, maxFrameX, maxFrameY );
+
 	end
 
 	DKIRunes_BarUpdate()
@@ -467,6 +544,7 @@ function DKIRunes_OnUpdate(self, update)
 end
 
 function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
+
 	local frameX, frameY = maxFrameX, maxFrameY;
 	local start, duration, runeReady = GetRuneCooldown(rune);
 	local percent = 1 - ((GetTime() - start)/duration);
@@ -546,7 +624,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 	if(DKIRunes_Saved.cooldown) then
 		local cooldown = _G["Rune"..rune.."Cooldown"];
 		local displayCooldown = 1;
-		CooldownFrame_SetTimer(cooldown, start, duration, displayCooldown);
+		CooldownFrame_Set(cooldown, start, duration, displayCooldown);
 	end
 
 	DKIRunes_Rune_SetFrame(rune, frameX, frameY);
@@ -557,6 +635,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 end
 
 function DKIRunes_DetermineRuneSwap(rune, percent)
+
 	local altRune = rune - 1;
 	local start, duration, runeReady = GetRuneCooldown(altRune);
 	local altPercent = 1 - ((GetTime() - start)/duration);
@@ -568,19 +647,23 @@ function DKIRunes_DetermineRuneSwap(rune, percent)
 		swap = true;
 	end
 	
-	if(swap) then
+	if (swap) then
+
 		local temp = runeOffset[rune];
+
 		runeOffset[rune] = runeOffset[altRune];
 		runeOffset[altRune] = temp;
+
 	end
+
 end
 
 function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
+
 	--ChatFrame1:AddMessage(string.format("%s: (%s, %s)", rune, frameX, frameY));
 	local width = 0.125;
 	local height = 0.0625;
-	local runeType = GetRuneType(rune);	
-	local texture = DKIRunes[runeType];
+	local texture = DKIRunes[DKIRunes_GetRuneType(rune)];
 	
 	--ChatFrame1:AddMessage(string.format("FrameX: %s, FrameY: %s, Rune: %s", frameX, frameY, rune));
 
@@ -597,15 +680,17 @@ function DKIRunes_Rune_SetFrame(rune, frameX, frameY)
 end
 
 function DKIRunes_SetBlur(rune, frameX, frameY)
+
 	local width = 0.125;
 	local height = 0.0625;
 	local shadow = 0;
-	local runeType = GetRuneType(rune);	
-	local texture = DKIRunes[runeType];
+
+	local texture = DKIRunes[DKIRunes_GetRuneType(rune)];
 	
 	--ChatFrame1:AddMessage("is runic corruption on: "..tostring(DKIRunes_isRunicCorruptionOn) );	
 
 	if (DKIRunes_isRunicCorruptionOn) then
+
 		for shadow = 1,4 do
 			local shadowAlpha = (10 - (shadow * 2)) / 10;
 
@@ -613,11 +698,15 @@ function DKIRunes_SetBlur(rune, frameX, frameY)
 			_G["Rune"..rune.."RuneTrail"..shadow]:SetAlpha(shadowAlpha);
 			_G["Rune"..rune.."RuneTrail"..shadow]:SetTexture(texture);		
 			_G["Rune"..rune.."RuneTrail"..shadow]:SetTexCoord(width * frameX, width * frameX + width, height * frameY, height * frameY + height);	
+
 		end
+
 	else
+
 		for shadow = 1,4 do
 			_G["Rune"..rune.."RuneTrail"..shadow]:SetAlpha(0);
 		end
+
 	end
 end
 
@@ -693,13 +782,17 @@ function DKIRunes_Rotate(spin)
 	end
 
 	DKIRunes_BarUpdate();
-	FixRPCounterLocation()
+	
+	FixRPCounterLocation();
+
 	DKIRunes_UpdateArt();
 	DKIRunes_UpdateUI();
 	DKIRunes_UpdateBlurDirection();
+
 end
 
 function DKIRunes_Reset(frame)
+
 	DKIRunes_Saved.artStyle = 1;
 	DKIRunes_Saved.animate = true;
 	DKIRunes_Saved.cooldown = false;
@@ -757,6 +850,7 @@ function DKIRunes_Reset(frame)
 end
 
 function FixRPCounterLocation()
+
 	if (DKIRunes_Saved.rotate == 1) then
 		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -1, 101 / DKIRunes_Saved.counterScale)
 	elseif (DKIRunes_Saved.rotate == 2) then
@@ -766,6 +860,7 @@ function FixRPCounterLocation()
 	else
 		DKIRunicPower:SetPoint('CENTER', DKIRunesFrame, 'CENTER', -101 / DKIRunes_Saved.counterScale, 0)
 	end
+
 end
 
 function DKIRunes_Debug()

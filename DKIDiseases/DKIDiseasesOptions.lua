@@ -62,11 +62,11 @@ function DKIDiseases_populateBlizzardOptions()
 	optTitle:SetText("Optional Tracking")
 	optTitle:SetPoint('TOPLEFT', DKIDiseasesReset, 'BOTTOMLEFT', 0, -40)
 
-	local sfCheck = CreateFrame("CheckButton", "SFCheck", frame, "OptionsCheckButtonTemplate");
-	_G[sfCheck:GetName().."Text"]:SetText("Weakened Blows");
-	sfCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.sf) end)
-	sfCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.sf = self:GetChecked();DKIDiseases_Talents_Check() end)
-	sfCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
+	local fwCheck = CreateFrame("CheckButton", "FWCheck", frame, "OptionsCheckButtonTemplate");
+	_G[fwCheck:GetName().."Text"]:SetText("Festering Wound");
+	fwCheck:SetScript('OnShow', function(self) self:SetChecked(DKIDiseases_Saved.fw) end)
+	fwCheck:SetScript('OnClick', function(self) DKIDiseases_Saved.fw = self:GetChecked();DKIDiseases_Talents_Check() end)
+	fwCheck:SetPoint('TOPLEFT', optTitle, 'BOTTOMLEFT', 20, -5)
 
 	local ringTitle = frame:CreateFontString("ringTitleString","ARTWORK","GameTooltipHeaderText");
 	ringTitle:SetText("Disease Rings and Icons")

@@ -1,4 +1,4 @@
-## Interface: 50001
+## Interface: 70000
 ## Title: DKIRunes
 ## Notes: Rune display based on the contest and community feedback of DeathKnight.info
 ##		http://deathknight.info/
@@ -12,6 +12,7 @@
 ##
 ##		Extra thanks go to ElderFuthark for his original creation/support of this mod from WotLK through Cataclysm
 ##		-- Hanzo
+##		  http://eightyearsinazeroth.blogspot.com
 ## SavedVariables: DKIRunes_Saved
 
 DKIRunes.xml
