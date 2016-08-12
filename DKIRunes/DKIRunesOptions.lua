@@ -58,19 +58,17 @@ function DKIRunes_populateBlizzardOptions()
 	rc_blur:SetScript('OnClick', function(self) DKIRunes_Saved.rc_blur = self:GetChecked() end);
 	rc_blur:SetPoint('LEFT', empower, 'RIGHT', 210, 0)
 
---[[
 	local gUholy = CreateFrame("CheckButton", "gUnholyCheck", frame, "OptionsCheckButtonTemplate");
 	_G[gUholy:GetName().."Text"]:SetText("Green Unholy");
 	gUholy:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.greenUnholy) end)
 	gUholy:SetScript('OnClick', function(self) DKIRunes_Saved.greenUnholy = self:GetChecked();DKIRunes_UpdateArt(); end)
 	gUholy:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
---]]
 
 	local pDeath = CreateFrame("CheckButton", "pDeathCheck", frame, "OptionsCheckButtonTemplate");
 	_G[pDeath:GetName().."Text"]:SetText("Purple Death");
 	pDeath:SetScript('OnShow', function(self) self:SetChecked(DKIRunes_Saved.purpleDeath) end)
 	pDeath:SetScript('OnClick', function(self) DKIRunes_Saved.purpleDeath = self:GetChecked();DKIRunes_UpdateArt(); end)
-	pDeath:SetPoint('TOPLEFT', empower, 'BOTTOMLEFT', 0, 0)
+	pDeath:SetPoint('LEFT', gUholy, 'RIGHT', 100, 0)
 
 	local graphicsTitle = frame:CreateFontString("graphicsTitleString","ARTWORK","GameTooltipHeaderText");
 	graphicsTitle:SetText("Rune Frame Graphics")

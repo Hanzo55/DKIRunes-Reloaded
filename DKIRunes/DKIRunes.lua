@@ -25,7 +25,9 @@ local DKIRuneLengths = {
 	[RUNETYPE_BLOOD] 	= 69,
 	[RUNETYPE_FROST] 	= 49,
 	[RUNETYPE_UNHOLY] 	= 65,
+	[RUNETYPE_UNHOLY2] 	= 65,
 	[RUNETYPE_DEATH] 	= 67,
+	[RUNETYPE_DEATH2] 	= 67,
 };
 
 local DKIRuneColors = {
@@ -179,7 +181,7 @@ function DKIRunes_GetRuneType(rune)
 
 			if ( DKIRunes_Saved.greenUnholy ) then
 		
-				return RUNETHYPE_UNHOLY2;
+				return RUNETYPE_UNHOLY2;
 
 			else
 
@@ -487,7 +489,7 @@ function DKIRunes_BarUpdate()
 			Horizontal_Bar_1:SetWidth(150 * power1Value);
 		end
 
-		if(power1Value > 0) then
+		if (power1Value > 0) then
 			EbonBlade_Bar_1:Show();
 			Vertical_Bar_1:Show();
 			Horizontal_Bar_1:Show();
@@ -495,12 +497,12 @@ function DKIRunes_BarUpdate()
 
 	end
 
-	if(DKIRunes_Saved.rpCounter and UnitMana("player") > 0) then
+	if (DKIRunes_Saved.rpCounter and UnitMana("player") > 0) then
 		DKIRunicPower:SetText(UnitMana("player"));
 		DKIRunicPower:Show();
 	end
 
-	if(DKIRunes_Saved.fade and UnitMana("player") == 0 and DKIRunes_inCombat2 == 0) then
+	if (DKIRunes_Saved.fade and UnitMana("player") == 0 and DKIRunes_inCombat2 == 0) then
 		DKIRunesFrame:SetAlpha(0.3);
 		EbonBlade_Bar_0:Hide();
 		EbonBlade_Bar_1:Hide();
@@ -581,7 +583,7 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 
 		local rawframe;
 
-		if(runeBurst[rune]) then
+		if (runeBurst[rune]) then
 			runeBurst[rune] = false;
 			rawFrame = animationStart + 1;
 		else
@@ -621,9 +623,10 @@ function DKIRunes_AnimateRune(rune, animationStart, maxFrameX, maxFrameY)
 
 	end
 
-	if(DKIRunes_Saved.cooldown) then
+	if (DKIRunes_Saved.cooldown) then
 		local cooldown = _G["Rune"..rune.."Cooldown"];
 		local displayCooldown = 1;
+
 		CooldownFrame_Set(cooldown, start, duration, displayCooldown);
 	end
 
@@ -686,10 +689,12 @@ function DKIRunes_SetBlur(rune, frameX, frameY)
 	local shadow = 0;
 
 	local texture = DKIRunes[DKIRunes_GetRuneType(rune)];
+	local isCooling = GetRuneCooldown(rune);
+
 	
 	--ChatFrame1:AddMessage("is runic corruption on: "..tostring(DKIRunes_isRunicCorruptionOn) );	
 
-	if (DKIRunes_isRunicCorruptionOn) then
+	if ( DKIRunes_isRunicCorruptionOn and isCooling ~= 0 ) then
 
 		for shadow = 1,4 do
 			local shadowAlpha = (10 - (shadow * 2)) / 10;
@@ -712,7 +717,7 @@ end
 
 function DKIRunes_Rotate(spin)
 	
-	if(spin) then
+	if (spin) then
 		DKIRunes_Saved.rotate = DKIRunes_Saved.rotate + 1;
 	end
 
