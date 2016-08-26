@@ -550,9 +550,14 @@ function InitDiseases()
 	else
 
 		-- HANZO: If DK is in the middle of respeccing, shut this stuff off
-		diseaseIcon[3][0]:Hide();
-		diseaseIcon[3][1]:Hide();
-		diseaseBar[3]:Hide();
+		--diseaseIcon[0][0]:Hide();
+		--diseaseIcon[0][1]:Hide();
+		--diseaseBar[0]:Hide();
+
+		--diseaseIcon[1][0]:Hide();
+		--diseaseIcon[1][1]:Hide();
+		--diseaseBar[1]:Hide();
+
 
 	end
 
